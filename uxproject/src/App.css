@@ -22,7 +22,14 @@
   font-size: large;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.loginButton {
+  position: fixed;
+  right: 1% !important;
+  top: 0.21% !important;
+}
+
+.logoutButton {
+  position: fixed;
+  right: 1% !important;
+  top: 0.21% !important;
 }
