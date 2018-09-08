@@ -103,9 +103,9 @@ class App extends Component {
         <div>
           <MenuAppBar />
           <Switch>
-            <Route path="/" exact />
-            <Route path="/createClass" exact />
-            <Route path="/" exact />
+            <Route exact path="/">{<div>HOME</div>}</Route>
+            <Route path="/crearTutoria" >{<div>Crear Tutoria</div>}</Route> 
+            <Route path="/perfil" >{<div>PERFIL</div>}</Route>
           </Switch>
         </div>
       </BrowserRouter>
