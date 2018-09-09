@@ -59,11 +59,13 @@ class App extends Component {
       // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
       if (user !== null) {
         this.setState({ user });
-        firebase
+        //Se movio a Cloud functions
+     /*   firebase
           .database()
           .ref("users/" + user.uid)
           .set({ displayName: user.displayName, photoURL: user.photoURL });
-      }
+     */
+        }
     });
   }
 
