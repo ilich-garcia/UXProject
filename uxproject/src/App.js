@@ -60,12 +60,17 @@ class App extends Component {
       if (user !== null) {
         this.setState({ user });
         //Se movio a Cloud functions
-     /*   firebase
-          .database()
-          .ref("users/" + user.uid)
-          .set({ displayName: user.displayName, photoURL: user.photoURL });
-     */
-        }
+        /*   firebase
+             .database()
+             .ref("users/" + user.uid)
+             .set({ displayName: user.displayName, photoURL: user.photoURL });
+        */
+      } else {
+        this.setState(
+          { user: null }
+        )
+      }
+
     });
   }
 
@@ -109,14 +114,14 @@ class App extends Component {
                     LOGOUT
                   </Button>
                 ) : (
-                  <Button
-                    onClick={this.handleAuth}
-                    aria-haspopup="true"
-                    color="inherit"
-                  >
-                    LOGIN
+                    <Button
+                      onClick={this.handleAuth}
+                      aria-haspopup="true"
+                      color="inherit"
+                    >
+                      LOGIN
                   </Button>
-                )}
+                  )}
               </div>
             </Toolbar>
           </AppBar>
