@@ -75,21 +75,104 @@ class ProfileTutor extends Component {
             email: "",
             clases: [],
             select: '',
+            myClasses: [],
 
         };
         //this.addClasses = this.addClasses.bind(this);
         this.renderList = this.renderList.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.testMethod = this.testMethod.bind(this);
+        this.testEditClasses = this.testEditClasses.bind(this);
+        this.editClasses = this.editClasses.bind(this);
 
     }
 
+    editClasses() {
+        var userId = fire.auth().currentUser.uid;
+       // e.preventDefault(); // <- prevent form submit from reloading the page
+        /* Send the message to Firebase */
+        //fire.database().ref('messages').push(this.state.mensaje);
+        var ref = fire.database().ref().child("users/" + userId);
+        //var userposts = fire.database().ref().child("user-posts");
+        
     
+      /*ref.child(key).child("likes").child(userId).setValue(true);para los likes del usuario
+      deberia ester en el metodo de likeMessage en el Dashboard y en MisPosts*/
+    
+      ref.once("value").then(function (snapshot) {
+          /*var x = snapshot.val();
+          console.log(x);
+*/
+          /*ref.child("tutClases").child(userId).remove();//quitar clase
+          ref.child("tutClases").child(userId).set(true);//agregar clase
+            */
+          this.state.clases.map((e) => {
+            //return <option key={e.idCLase}>{e.nombre}</option>;
+            ref.child("tutClases").child(e.nombre).set(true);
+        })
+        /*if (snapshot.child(userToFollow).exists()) {
+          console.log("user already followed");
+          ref.child(userToFollow).remove();
+        } else {
+          if (userToFollow != userId) {
+            console.log("user is not followed");
+            ref.child(userToFollow).set(true);
+          } else {
+            console.log("can't follow yourself");
+          }
+  
+        }*/
+      });
+/*
+        console.log(key);
+    
+        ref.child("").set({
+          titulo: this.state.titulo,
+          mensaje: this.state.mensaje,
+          userName: fire.auth().currentUser.displayName,
+          userId: userId,
+          acceso: this.state.acceso,
+          idMensaje: key,
+          photo: fire.auth().currentUser.uid,
+          likes: {
+            cont : 0
+          }
+        });
+    
+        userposts.child(userId + "/" + this.state.acceso + "/"+ key).set({
+          titulo: this.state.titulo,
+          mensaje: this.state.mensaje,
+          userName: fire.auth().currentUser.displayName,
+          userId: userId,
+          acceso: this.state.acceso,
+          idMensaje: key,
+          photo: fire.auth().currentUser.uid,
+          likes: {
+            cont : 0
+          }
+    
+        });*/
+    
+      }
+
+    testMethod(){
+        console.log(this.state.select);
+    }
+
+
 
     handleChange = name => event => {
         this.setState({ [name]: event.target.value });
     };
 
-    /*
+    testEditClasses(e){
+        e.preventDefault();
+
+        var ref = fire.database().ref().child("users/id0");
+
+
+    }
+    /* agregando algunas clases a la base de datos
         addClasses(e) {
             e.preventDefault(); // <- prevent form submit from reloading the page
     
@@ -164,6 +247,8 @@ class ProfileTutor extends Component {
     componentWillUnmount() {
 
     }
+
+    
 
     renderList() {
         return this.state.clases.map(el => {
@@ -240,17 +325,21 @@ class ProfileTutor extends Component {
 
                             <List>
 
-                             
-                                {this.state.clases.map((e) => {
-                                return <ListItem primarytext={e.nombre} key={e.idClase}>
-                                </ListItem>;
-                            })}
 
-                                <ListItemSecondaryAction>
-                                    <IconButton aria-label="Delete">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
+                                {this.state.clases.map((e) => {
+                                    return <ListItem primarytext={e.nombre} key={e.idClase}>
+                                        <ListItemText
+                                            primary={e.nombre}
+                                        />
+                                        <ListItemSecondaryAction onClick = {this.testMethod} >
+                                            <IconButton aria-label="Delete">
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>;
+                                })}
+
+
 
                             </List>
 
@@ -263,7 +352,7 @@ class ProfileTutor extends Component {
                             native
                             value={this.state.select}
                             onChange={this.handleChange('select')}
-                            placeholder = "asd"
+                            placeholder="asd"
                         >
 
                             {this.state.clases.map((e) => {
@@ -273,7 +362,7 @@ class ProfileTutor extends Component {
                         </Select>
                     </FormControl>
 
-                    <br /><button type="button" className="btn btn-primary">Guardar Cambios</button>
+                    <br /><button onClick={() => this.editClasses()} type="button" className="btn btn-primary">Guardar Cambios</button>
                 </div>
 
             </div>
