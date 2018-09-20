@@ -6,17 +6,10 @@ import firebase from "firebase";
 import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
-import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Button from '@material-ui/core/Button';
-import CardActions from '@material-ui/core/CardActions';
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import FolderIcon from "@material-ui/icons/Folder";
@@ -27,7 +20,11 @@ import SimpleSnackBar from './SnackBar';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 
 //import DeleteIcon from "@material-ui/icons/Delete";
@@ -70,7 +67,9 @@ class ProfileTutor extends Component {
 
         this.state = {
             user: null,
+            open: false,
             nombre: "",
+            nombreEdit: "",
             carrera: "",
             email: "",
             clases: [],
@@ -84,78 +83,86 @@ class ProfileTutor extends Component {
         this.testMethod = this.testMethod.bind(this);
         this.testEditClasses = this.testEditClasses.bind(this);
         this.editClasses = this.editClasses.bind(this);
+        this.deleteClass = this.deleteClass.bind(this);
+        this.handleClickOpen = this.handleClickOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.guardarCambios = this.guardarCambios.bind(this);
+    }
+
+    addClass(newClass) {
+        this.setState({ open: false });
+        if (newClass !== "") {
+            if (!this.state.myClasses.includes(newClass)) {
+                var userId = fire.auth().currentUser.uid;
+                var ref = fire.database().ref().child("users/" + userId);
+
+                ref.once("value").then(function (snapshot) {
+                    ref.child("tutClases").child(newClass).set(true);
+                });
+            } else {
+                console.log("no se puede agregar clase existente");
+            }
+            //console.log("is in array? " + this.state.myClasses.includes(newClass));
+            console.log("Clase: " + newClass);
+        } else {
+            console.log("havent selected item");
+        }
 
     }
 
+
+    handleClickOpen = () => {
+        this.setState({ open: true });
+    };
+
+    handleClose = () => {
+        this.setState({ open: false });
+    };
+
     editClasses() {
+        let currentComponent = this;
         var userId = fire.auth().currentUser.uid;
-       // e.preventDefault(); // <- prevent form submit from reloading the page
+        // e.preventDefault(); // <- prevent form submit from reloading the page
         /* Send the message to Firebase */
         //fire.database().ref('messages').push(this.state.mensaje);
         var ref = fire.database().ref().child("users/" + userId);
         //var userposts = fire.database().ref().child("user-posts");
-        
-    
-      /*ref.child(key).child("likes").child(userId).setValue(true);para los likes del usuario
-      deberia ester en el metodo de likeMessage en el Dashboard y en MisPosts*/
-    
-      ref.once("value").then(function (snapshot) {
-          /*var x = snapshot.val();
-          console.log(x);
-*/
-          /*ref.child("tutClases").child(userId).remove();//quitar clase
-          ref.child("tutClases").child(userId).set(true);//agregar clase
-            */
-          this.state.clases.map((e) => {
-            //return <option key={e.idCLase}>{e.nombre}</option>;
-            ref.child("tutClases").child(e.nombre).set(true);
-        })
-        /*if (snapshot.child(userToFollow).exists()) {
-          console.log("user already followed");
-          ref.child(userToFollow).remove();
-        } else {
-          if (userToFollow != userId) {
-            console.log("user is not followed");
-            ref.child(userToFollow).set(true);
-          } else {
-            console.log("can't follow yourself");
-          }
-  
-        }*/
-      });
-/*
-        console.log(key);
-    
-        ref.child("").set({
-          titulo: this.state.titulo,
-          mensaje: this.state.mensaje,
-          userName: fire.auth().currentUser.displayName,
-          userId: userId,
-          acceso: this.state.acceso,
-          idMensaje: key,
-          photo: fire.auth().currentUser.uid,
-          likes: {
-            cont : 0
-          }
-        });
-    
-        userposts.child(userId + "/" + this.state.acceso + "/"+ key).set({
-          titulo: this.state.titulo,
-          mensaje: this.state.mensaje,
-          userName: fire.auth().currentUser.displayName,
-          userId: userId,
-          acceso: this.state.acceso,
-          idMensaje: key,
-          photo: fire.auth().currentUser.uid,
-          likes: {
-            cont : 0
-          }
-    
-        });*/
-    
-      }
 
-    testMethod(){
+        /*ref.update({
+            nombre: this.state.nombre,
+            nombre: "Trigonometria"
+        });*/
+
+    }
+
+    guardarCambios() {
+        var userId = fire.auth().currentUser.uid;
+        var ref = fire.database().ref().child("users/" + userId);
+
+        ref.update({
+            nombre: this.state.nombreEdit,
+            email: this.state.email,
+            carrera: this.state.carrera,
+        });
+    }
+
+    deleteClass(classToDelete) {
+        let currentComponent = this;
+        var userId = fire.auth().currentUser.uid;
+
+        var ref = fire.database().ref().child("users/" + userId);
+
+        ref.once("value").then(function (snapshot) {
+            if (snapshot.child("tutClases").child(classToDelete).exists()) {
+                console.log("deleting " + classToDelete);
+                ref.child("tutClases").child(classToDelete).remove();
+            } else {
+                console.log("doesnt exist");
+            }
+        });
+    }
+
+    testMethod() {
         console.log(this.state.select);
     }
 
@@ -163,9 +170,10 @@ class ProfileTutor extends Component {
 
     handleChange = name => event => {
         this.setState({ [name]: event.target.value });
+        console.log(event.target.value);
     };
 
-    testEditClasses(e){
+    testEditClasses(e) {
         e.preventDefault();
 
         var ref = fire.database().ref().child("users/id0");
@@ -200,10 +208,14 @@ class ProfileTutor extends Component {
 
 
 
+
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
                 const name = auth.currentUser.displayName;
+                var userId = auth.currentUser.uid;
+                console.log("uid: " + userId);
+                console.log("idk");
 
                 this.setState({
                     nombre: name,
@@ -213,9 +225,10 @@ class ProfileTutor extends Component {
                 console.log(name);
 
 
-                var ref = fire.database().ref().child("clases");
+                var ref = fire.database().ref().child("users").child(userId).child("tutClases");
+                var refAllClasses = fire.database().ref().child("clases");
 
-                ref.on("value", function (snapshot) {
+                refAllClasses.on("value", function (snapshot) {
                     let list = []
                     snapshot.forEach(function (childSnapshot) {
                         var key = childSnapshot.key;
@@ -229,10 +242,19 @@ class ProfileTutor extends Component {
                     })
                 });
 
+                ref.on("value", function (snapshot) {
+                    let list = []
+                    snapshot.forEach(function (childSnapshot) {
+                        var key = childSnapshot.key;
+                        console.log(key);
+                        console.log(childSnapshot.val());
+                        list.push(key);
 
-
-
-
+                        currentComponent.setState({
+                            myClasses: list
+                        })
+                    })
+                });
 
             } else {
                 this.setState(
@@ -248,7 +270,7 @@ class ProfileTutor extends Component {
 
     }
 
-    
+
 
     renderList() {
         return this.state.clases.map(el => {
@@ -260,12 +282,6 @@ class ProfileTutor extends Component {
 
     //obtener los datos del usuario logged in en el componentWillMount y cambiar el state
     render() {
-        let data = this.state.clases.map((doc, i) => {
-
-            <ListItem primaryText={doc.nombre} key={doc.id}>
-            </ListItem>
-
-        })
 
 
         const { classes } = this.props;
@@ -283,33 +299,18 @@ class ProfileTutor extends Component {
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Nombre</label>
-                        <input className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre} />
+                        <input onChange={this.handleChange('nombreEdit')} className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre} />
                     </div>
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Carrera</label>
-                        <input className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carrera} />
+                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carrera} />
                     </div>
 
                     <div className="">
                         <label htmlFor="ex1">Email</label>
-                        <input className="w-50 form-control" id="email" type="text" placeholder={this.state.email} />
+                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.email} />
                     </div>
-
-                    <div className="form-group">
-                        <label htmlFor="sel1">Clases disponibles para tutorías:</label>
-                        <select className=" w-50 form-control" id="sel1">
-                            <option>Intro. al Alg.</option>
-                            <option>Algebra</option>
-                            <option>Geom. y Trig.</option>
-                            <option>Cálculo I</option>
-                            <option>Cálculo II</option>
-                        </select>
-
-                    </div>
-
-
-
 
 
 
@@ -318,20 +319,21 @@ class ProfileTutor extends Component {
                         <Grid item xs={12} md={6}>
                             <Typography >
                                 Tutorías disponibles
-                                <Button color="primary" aria-label="Add">
+                                <Button onClick={this.handleClickOpen} color="primary" aria-label="Add">
                                     <AddIcon />
                                 </Button>
                             </Typography>
 
+
                             <List>
 
 
-                                {this.state.clases.map((e) => {
-                                    return <ListItem primarytext={e.nombre} key={e.idClase}>
+                                {this.state.myClasses.map((e) => {
+                                    return <ListItem primarytext={e} key={e}>
                                         <ListItemText
-                                            primary={e.nombre}
+                                            primary={e}
                                         />
-                                        <ListItemSecondaryAction onClick = {this.testMethod} >
+                                        <ListItemSecondaryAction onClick={() => this.deleteClass(e)} >
                                             <IconButton aria-label="Delete">
                                                 <DeleteIcon />
                                             </IconButton>
@@ -347,7 +349,53 @@ class ProfileTutor extends Component {
 
                     </Grid>
 
-                    <FormControl>
+
+
+                    <br /><button onClick={() => this.guardarCambios()} type="button" className="btn btn-primary">Guardar Cambios</button>
+                    <br />
+                </div>
+
+                <Dialog
+                    open={this.state.open}
+                    onClose={this.handleClose}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">Agregar Clase</DialogTitle>
+                    <DialogContent>
+                        <FormControl>
+                            <Select
+                                native
+                                value={this.state.select}
+                                onClick={this.handleChange('select')}
+                                onChange={this.handleChange('select')}
+                                placeholder="asd"
+                            >
+
+                                {this.state.clases.map((e) => {
+                                    return <option key={e.idClase}>{e.nombre}</option>;
+                                })}
+
+                            </Select>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+
+                        <Button onClick={() => this.addClass(this.state.select)} color="primary">
+                            Agregar clase
+            </Button>
+                    </DialogActions>
+                </Dialog>
+
+
+            </div>
+        );
+
+    }
+
+}
+
+/* para el select de agregar clase
+<FormControl>
                         <Select
                             native
                             value={this.state.select}
@@ -362,19 +410,24 @@ class ProfileTutor extends Component {
                         </Select>
                     </FormControl>
 
-                    <br /><button onClick={() => this.editClasses()} type="button" className="btn btn-primary">Guardar Cambios</button>
-                </div>
-
-            </div>
-        );
-
-    }
-
-}
+                    */
 /*
 ProfileTutor.propTypes = {
     classes: PropTypes.object.isRequired,
 };*/
+
+/*
+                    <div className="form-group">
+                        <label htmlFor="sel1">Clases disponibles para tutorías:</label>
+                        <select className=" w-50 form-control" id="sel1">
+                            <option>Intro. al Alg.</option>
+                            <option>Algebra</option>
+                            <option>Geom. y Trig.</option>
+                            <option>Cálculo I</option>
+                            <option>Cálculo II</option>
+                        </select>
+
+                    </div>*/
 
 export default ProfileTutor;
 
