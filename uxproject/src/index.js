@@ -1,16 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import firebase from 'firebase';
 import './index.css';
 import App from './App';
 
-firebase.initializeApp({
-    apiKey: "AIzaSyBpsl8EwJTr911NbdECTtuSpbTJGVqUmYE",
-    authDomain: "tutorials-app-34a98.firebaseapp.com",
-    databaseURL: "https://tutorials-app-34a98.firebaseio.com",
-    projectId: "tutorials-app-34a98",
-    storageBucket: "tutorials-app-34a98.appspot.com",
-    messagingSenderId: "816057718802"
-});
+import * as auth from './auth/auth';
+import 'firebase/auth';
+import {firebase} from './firebase/firebase';
+//import * as firebase from './firebase/firebase';
+
+
 
 ReactDOM.render(<App />, document.getElementById('root'));
+
+export{
+    auth, 
+    firebase,
+};
