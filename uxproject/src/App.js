@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import firebase from "firebase";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route , Redirect } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -8,8 +8,9 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import { Link } from "react-router-dom";
-import { Redirect } from "react-router";
-import Register from "./components/Register"
+import ProfileTutor from './components/Profile';
+import Tutorial from './components/Tutorial';
+import Register from './components/Register'
 
 const styles = {
   root: {
@@ -75,7 +76,7 @@ class App extends Component {
     }));
   }
 
-  componentWillMount() {
+  componentDidMount() {
     firebase.auth().onAuthStateChanged(user => {
       // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
       if (user !== null) {
@@ -90,6 +91,26 @@ class App extends Component {
       }
     });
   }
+
+
+/*
+  componentDidMount() {
+    this.removeListener = firebaseAuth().onAuthStateChanged(user => {
+      if (user) {
+        this.setState({
+          authed: true,
+          loading: false
+        });
+        //staaate = true;
+      } else {
+        this.setState({
+          authed: false,
+          loading: false
+        });
+        //staaate = false;
+      }
+    });
+  }*/
 
   render() {
     return (
@@ -200,5 +221,7 @@ class App extends Component {
     );
   }
 }
-
+/*const currUser = this.state.user;
+export const currUser;*/
 export default App;
+
