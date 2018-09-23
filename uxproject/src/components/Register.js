@@ -1,11 +1,17 @@
 import React, { Component } from "react";
-import { Button, Avatar, Typography } from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/";
-import firebase from 'firebase'
+import {
+  Button,
+  FormControlLabel,
+  FormGroup,
+  Checkbox,
+  GridList,
+  GridListTile,
+  Chip
+} from "@material-ui/core";
+import { withRouter } from "react-router-dom";
+import firebase from "firebase";
 import PropTypes from "prop-types";
-import classNames from "classnames";
 import { withStyles } from "@material-ui/core/styles";
-import MenuItem from "@material-ui/core/MenuItem";
 import TextField from "@material-ui/core/TextField";
 
 const styles = theme => ({
@@ -19,13 +25,20 @@ const styles = theme => ({
   textField: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
-    width: 200
+    width: 300
   },
   dense: {
     marginTop: 19
   },
   menu: {
     width: 200
+  },
+  chip: {
+    margin: theme.spacing.unit,
+    flexGrow: 1
+  },
+  gridList: {
+    flexGrow: 1
   }
 });
 /*
@@ -44,20 +57,58 @@ class Register extends Component {
     this.state = {
       typeAccount: "",
       edad: 0,
-      titulo: "",
       universidad: "",
       inputConocimiento: "",
       conocimientos: [],
-      area: "",
+      inputArea: "",
+      areas: [],
       precio: 0,
-      disponibilidad: []
+      lun: false,
+      mar: false,
+      mier: false,
+      jue: false,
+      vie: false,
+      sab: false,
+      dom: false
     };
     this.handlerTutorButton = this.handlerTutorButton.bind(this);
     this.handlerAlumnoButton = this.handlerAlumnoButton.bind(this);
     this.renderFormTutor = this.renderFormTutor.bind(this);
     this.renderFormAlumno = this.renderFormAlumno.bind(this);
-    this.handleSignIn = this.handleSignIn.bind(this);
+    this.handleSignInTutor = this.handleSignInTutor.bind(this);
+    this.handleSignInAlumno = this.handleSignInAlumno.bind(this);
   }
+
+  handleKeyPress = event => {
+    let temp = this.state.conocimientos;
+    if (event.key == "Enter") {
+      console.log(this.state.inputConocimiento);
+
+      temp.push(this.state.inputConocimiento);
+      this.setState(state => ({
+        conocimientos: temp,
+        inputConocimiento: ""
+      }));
+      console.log(this.state.conocimientos);
+    }
+  };
+  handleKeyAreaPress = event => {
+    let temp = this.state.areas;
+    if (event.key == "Enter") {
+      console.log(this.state.inputArea);
+
+      temp.push(this.state.inputArea);
+      this.setState(state => ({
+        areas: temp,
+        inputArea: ""
+      }));
+      console.log(this.state.areas);
+    }
+  };
+
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.checked });
+  };
 
   handlerTutorButton() {
     this.setState({
@@ -70,47 +121,10 @@ class Register extends Component {
       typeAccount: "alumno"
     });
   }
-/*
-  handleChangeEdad() {
-    this.setState({
-      edad: this.state.edad
-    });
-  }
-  handleChangeTitulo() {
-    this.setState({
-      titulo: this.state.titulo
-    });
-  }
-  handleChangeUniversidad() {
-    this.setState({
-      universidad: this.state.universidad
-    });
-  }
-  handleChangeConocimiento() {
-    this.setState({
-      inputConocimiento: this.state.inputConocimiento
-    });
-  }
-  handleChangeArea() {
-    this.setState({
-      area: this.state.area
-    });
-  }
-
-  handleChangePrecio() {
-    this.setState({
-      precio: this.state.precio
-    });
-  }
-  handleChangeDisponibilidad() {
-    this.setState({
-      disponibilidad: this.state.disponibilidad
-    });
-  }
-*/
-  handleSignIn() {
-    //console.log("Entro al AUTH");
+  handleSignInAlumno() {
+    console.log("Entro al AUTH");
     const provider = new firebase.auth.GoogleAuthProvider();
+
     firebase
       .auth()
       .signInWithPopup(provider)
@@ -118,21 +132,57 @@ class Register extends Component {
         alert(`Error ${error.code}: ${error.message}`);
       })
       .then(() => {
-        this.processSignIn();
-      });
+        this.processSignInAlumno();
+      })
+      .then(this.props.history.push("/"));
   }
+  handleSignInTutor() {
+    console.log("Entro al AUTH");
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-  processSignIn() {
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .catch(error => {
+        alert(`Error ${error.code}: ${error.message}`);
+      })
+      .then(() => {
+        this.processSignInTutor();
+      })
+      .then(this.props.history.push("/"));
+  }
+  processSignInAlumno() {
     console.log(firebase.auth().currentUser.uid);
-    const ref = firebase.database().ref(`users/${firebase.auth().currentUser.uid}`);
+    const ref = firebase.database().ref(`usuarios/alumnos/${firebase.auth().currentUser.uid}`);
     ref.set({
       edad: this.state.edad,
-      titulo:this.state.titulo,
       universidad: this.state.universidad,
-      conocimientos: [],
-      area: this.state.area,
+      conocimientos: this.state.conocimientos,
+      lun: this.state.lun,
+      mar: this.state.mar,
+      mier: this.state.mier,
+      jue: this.state.jue,
+      vie: this.state.vie,
+      sab: this.state.sab,
+      dom: this.state.dom
+    });
+  }
+  processSignInTutor() {
+    console.log(firebase.auth().currentUser.uid);
+    const ref = firebase.database().ref(`usuarios/tutores/${firebase.auth().currentUser.uid}`);
+    ref.set({
+      edad: this.state.edad,
+      universidad: this.state.universidad,
+      conocimientos: this.state.conocimientos,
+      areas: this.state.areas,
       precio: this.state.precio,
-      disponibilidad: []
+      lun: this.state.lun,
+      mar: this.state.mar,
+      mier: this.state.mier,
+      jue: this.state.jue,
+      vie: this.state.vie,
+      sab: this.state.sab,
+      dom: this.state.dom
     });
   }
   renderFormTutor() {
@@ -144,64 +194,294 @@ class Register extends Component {
           label="Universidad"
           className={classes.textField}
           value={this.state.universidad}
-          //onChange={this.handleChangeUniversidad()}
+          onChange={(e, newValue) =>
+            this.setState({ universidad: e.target.value })
+          }
           margin="normal"
         />
         <TextField
           id="edad"
           label="Edad"
           className={classes.textField}
-          value={this.state.name}
-          //onChange={this.handleChangeEdad()}
+          value={this.state.edad}
+          onChange={(e, newValue) => this.setState({ edad: e.target.value })}
           margin="normal"
         />
 
         <TextField
           id="conocimiento"
-          label="Conocimiento"
+          label="Conocimientos"
           className={classes.textField}
-          value={this.state.name}
-          //onChange={this.handleChangeConocimiento()}
+          value={this.state.inputConocimiento}
+          onChange={(e, newValue) =>
+            this.setState({ inputConocimiento: e.target.value })
+          }
+          onKeyPress={this.handleKeyPress}
           margin="normal"
         />
+        <GridList
+          cellHeight={"auto"}
+          spacing={3}
+          className={classes.gridList}
+          cols={3}
+        >
+          {this.state.conocimientos.map(tile => (
+            <GridListTile key={tile} cols={1}>
+              <Chip label={tile} className={classes.chip} />
+            </GridListTile>
+          ))}
+        </GridList>
         <TextField
           id="areas"
           label="Areas para hacer tutorias"
           className={classes.textField}
-          value={this.state.name}
-          //onChange={this.handleChangeArea()}
+          value={this.state.inputArea}
+          onChange={(e, newValue) =>
+            this.setState({ inputArea: e.target.value })
+          }
+          onKeyPress={this.handleKeyAreaPress}
           margin="normal"
         />
+        <GridList
+          cellHeight={"auto"}
+          spacing={3}
+          className={classes.gridList}
+          cols={3}
+        >
+          {this.state.areas.map(tile => (
+            <GridListTile key={tile} cols={1}>
+              <Chip label={tile} className={classes.chip} />
+            </GridListTile>
+          ))}
+        </GridList>
 
         <TextField
           id="precio"
           label="Precio por hora"
           className={classes.textField}
-          value={this.state.name}
-          //onChange={this.handleChangePrecio()}
+          value={this.state.precio}
+          onChange={(e, newValue) => this.setState({ precio: e.target.value })}
           margin="normal"
         />
         <TextField
-          id="horario"
-          label="Horas de disponibilidad"
+          id="email"
+          label="Email"
           className={classes.textField}
-          value={this.state.name}
-          //onChange={this.handleChangeDisponibilidad()}
+          value={this.state.email}
+          onChange={(e, newValue) => this.setState({ email: e.target.value })}
           margin="normal"
         />
-        <Button
-          onClick={this.handleSignIn()}
-          aria-haspopup="true"
-          color="inherit"
-        >
-          Registrarse
-        </Button>
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.lun}
+                onChange={this.handleChange("lun")}
+                value="lun"
+              />
+            }
+            label="Lun"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.mar}
+                onChange={this.handleChange("mar")}
+                value="mar"
+              />
+            }
+            label="Mar"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.mie}
+                onChange={this.handleChange("mier")}
+                value="mier"
+              />
+            }
+            label="Mie"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.jue}
+                onChange={this.handleChange("jue")}
+                value="jue"
+              />
+            }
+            label="Jue"
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.vie}
+                onChange={this.handleChange("vie")}
+                value="vie"
+              />
+            }
+            label="Vie"
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.sab}
+                onChange={this.handleChange("sab")}
+                value="sab"
+              />
+            }
+            label="Sab"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.dom}
+                onChange={this.handleChange("dom")}
+                value="dom"
+              />
+            }
+            label="Dom"
+          />
+        </FormGroup>
+        <Button onClick={this.handleSignInTutor}>Registrarse</Button>
       </form>
     );
   }
 
   renderFormAlumno() {
-    return <div />;
+    const { classes } = this.props;
+    return (
+      <form className={classes.container} noValidate autoComplete="off">
+        <TextField
+          id="universidad"
+          label="Universidad"
+          className={classes.textField}
+          value={this.state.universidad}
+          onChange={(e, newValue) =>
+            this.setState({ universidad: e.target.value })
+          }
+          margin="normal"
+        />
+
+        <TextField
+          id="edad"
+          label="Edad"
+          className={classes.textField}
+          value={this.state.edad}
+          onChange={(e, newValue) => this.setState({ edad: e.target.value })}
+          margin="normal"
+        />
+        <TextField
+          id="conocimiento"
+          label="Conocimientos"
+          className={classes.textField}
+          value={this.state.inputConocimiento}
+          onChange={(e, newValue) =>
+            this.setState({ inputConocimiento: e.target.value })
+          }
+          onKeyPress={this.handleKeyPress}
+          margin="normal"
+        />
+        <GridList
+          cellHeight={"auto"}
+          spacing={3}
+          className={classes.gridList}
+          cols={3}
+        >
+          {this.state.conocimientos.map(tile => (
+            <GridListTile key={tile} cols={1}>
+              <Chip label={tile} className={classes.chip} />
+            </GridListTile>
+          ))}
+        </GridList>
+
+        <TextField
+          id="email"
+          label="Email"
+          className={classes.textField}
+          value={this.state.email}
+          onChange={(e, newValue) => this.setState({ email: e.target.value })}
+          margin="normal"
+        />
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.lun}
+                onChange={this.handleChange("lun")}
+                value="lun"
+              />
+            }
+            label="Lun"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.mar}
+                onChange={this.handleChange("mar")}
+                value="mar"
+              />
+            }
+            label="Mar"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.mie}
+                onChange={this.handleChange("mier")}
+                value="mier"
+              />
+            }
+            label="Mie"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.jue}
+                onChange={this.handleChange("jue")}
+                value="jue"
+              />
+            }
+            label="Jue"
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.vie}
+                onChange={this.handleChange("vie")}
+                value="vie"
+              />
+            }
+            label="Vie"
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.sab}
+                onChange={this.handleChange("sab")}
+                value="sab"
+              />
+            }
+            label="Sab"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={this.state.dom}
+                onChange={this.handleChange("dom")}
+                value="dom"
+              />
+            }
+            label="Dom"
+          />
+        </FormGroup>
+        <Button onClick={this.handleSignInAlumno}>Registrarse</Button>
+      </form>
+    );
   }
 
   render() {
@@ -228,7 +508,7 @@ class Register extends Component {
             marginTop: 200
           }}
         >
-          Eligio Alumno
+          {this.renderFormAlumno()}
         </div>
       );
     }
@@ -264,4 +544,4 @@ class Register extends Component {
   }
 }
 
-export default withStyles(styles)(Register);
+export default withRouter(withStyles(styles)(Register));
