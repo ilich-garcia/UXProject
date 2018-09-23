@@ -134,14 +134,14 @@ class App extends Component {
                     LOGOUT
                   </Button>
                 ) : (
-                  <Button
-                    onClick={this.handleAuth}
-                    aria-haspopup="true"
-                    color="inherit"
-                  >
-                    LOGIN
+                    <Button
+                      onClick={this.handleAuth}
+                      aria-haspopup="true"
+                      color="inherit"
+                    >
+                      LOGIN
                   </Button>
-                )}
+                  )}
               </div>
             </Toolbar>
           </AppBar>
