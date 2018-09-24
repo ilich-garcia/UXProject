@@ -9,9 +9,19 @@ import Button from '@material-ui/core/Button';
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import DeleteIcon from "@material-ui/icons/Portrait";
+import { Link } from "react-router-dom";
 
 
 const UserProfile = ({ profileObject, uid, clases }) => {
+
+    let enviarMensaje = () => {
+        console.log("enviar mensaje a " + profileObject.nombre);
+
+    }
+    /*}
+    function enviarMensaje(){
+        console.log("enviar mensaje");
+    }*/
 
 
     return (
@@ -20,7 +30,13 @@ const UserProfile = ({ profileObject, uid, clases }) => {
                 <h1>Usuario: {profileObject.nombre}</h1>
                 <p>Aquí puedes ver la información del tutor.</p>
 
-                <Button raised="true" type="button" className="btn btn-primary">Enviar mensaje </Button>
+                <Link
+                  to="/enviarMensaje"
+                  style={{ color: "#fff", textDecoration: "none" }}
+                >
+                   <Button onClick = {() => enviarMensaje()} raised="true" type="button" className="btn btn-primary">Enviar mensaje </Button>
+                </Link>
+               
             </div>
 
             <div className="container">
@@ -79,6 +95,8 @@ const UserProfile = ({ profileObject, uid, clases }) => {
 
     );
 };
+
+
 
 
 

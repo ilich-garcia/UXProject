@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import ProfileTutor from './components/Profile';
 import ListaTutores from './components/ListaTutores';
 import Tutorial from './components/Tutorial';
+import EnviarMensaje from './components/EnviarMensaje';
 
 const styles = {
   root: {
@@ -162,6 +163,10 @@ class App extends Component {
             <Route path="/crearTutoria">{<div>Crear Tutoria</div>}</Route>
             <Route path="/perfil" component={ProfileTutor}></Route>
             <Route path = "/listaTutores" component = {ListaTutores}></Route>
+            
+            {//tira error
+            }
+            <Route path = "/enviarMensaje" component = {EnviarMensaje}/>
           </Switch>
         </div>
       </BrowserRouter>
