@@ -417,7 +417,7 @@ class ProfileTutor extends Component {
                         <Grid item xs={12} md={6}>
                             <Typography style={{ flex: 1 }}>
                                 Tutorías disponibles
-                                <Button onClick={() => this.handleClickOpen} color="primary" aria-label="Add">
+                                <Button onClick= {this.handleClickOpen} color="primary" aria-label="Add">
                                     <AddIcon />
                                 </Button>
                             </Typography>
@@ -468,8 +468,8 @@ class ProfileTutor extends Component {
                             <Select
                                 native
                                 value={this.state.select}
-                                onClick={() => this.handleChange('select')}
-                                onChange={() => this.handleChange('select')}
+                                onClick={this.handleChange('select')}
+                                onChange={ this.handleChange('select')}
                                 placeholder="asd"
                             >
 
