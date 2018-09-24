@@ -38,6 +38,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 
 import { UserProfile } from "./UserProfile";
+import ViewProfile from "./ViewProfile";
 
 //import DeleteIcon from "@material-ui/icons/Delete";
 //import FilterListIcon from "@material-ui/icons/FilterList";
@@ -193,7 +194,7 @@ class ListaTutores extends Component {
     openProfile(data) {
         firebase.auth().onAuthStateChanged(user => {
             if (user !== null) {
-                const ref = fire.database().ref().child("users").child(data.uid).child("tutClases");
+                const ref = fire.database().ref().child("usuarios/tutores").child(data.uid).child("tutClases");
 
                 ref.on("value", snapshot => {
                     let list = []
@@ -256,10 +257,6 @@ class ListaTutores extends Component {
 
 
     componentDidMount() {
-        let currentComponent = this;
-
-
-
 
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
@@ -356,12 +353,16 @@ class ListaTutores extends Component {
                     onClose={this.handleClose}
                     aria-labelledby="form-dialog-title">
 
-                    <UserProfile
+
+                    {/*<UserProfile
                         profileObject={this.state.selectedProfile}
                         uid={this.state.selectedProfile.uid}
                         clases={this.state.selectedProfileClases}
 
-                    />
+                    />*/}
+                    <ViewProfile objectUser = {this.state.selectedProfile}/>
+
+
                 </Dialog>) : (<div></div>)
 
                 }

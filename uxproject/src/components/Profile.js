@@ -82,8 +82,8 @@ class ProfileTutor extends Component {
             nombre: "",
             nombreEdit: "",
             carrera: "",
-            carreraStatic : "",
-            emailStatic : "",
+            carreraStatic: "",
+            emailStatic: "",
             email: "",
             clases: [],
             select: '',
@@ -101,15 +101,37 @@ class ProfileTutor extends Component {
         this.handleClose = this.handleClose.bind(this);
         this.guardarCambios = this.guardarCambios.bind(this);
         this.checkIfExists = this.checkIfExists.bind(this);
+        this.addClass = this.addClass.bind(this);
 
     }
+
+    /*addClass(newClass) {
+        this.setState({ open: false });
+        if (newClass !== "") {
+            if (!this.state.myClasses.includes(newClass)) {
+                var userId = fire.auth().currentUser.uid;
+                var ref = fire.database().ref().child("users/" + userId);
+
+                ref.once("value").then(function (snapshot) {
+                    ref.child("tutClases").child(newClass).set(true);
+                });
+            } else {
+                console.log("no se puede agregar clase existente");
+            }
+            //console.log("is in array? " + this.state.myClasses.includes(newClass));
+            console.log("Clase: " + newClass);
+        } else {
+            console.log("havent selected item");
+        }
+
+    }*/
 
     addClass(newClass) {
         this.setState({ open: false });
         if (newClass !== "") {
             if (!this.state.myClasses.includes(newClass)) {
                 var userId = fire.auth().currentUser.uid;
-                var ref = fire.database().ref().child("users/" + userId);
+                var ref = fire.database().ref().child("usuarios/tutores/" + userId);
 
                 ref.once("value").then(function (snapshot) {
                     ref.child("tutClases").child(newClass).set(true);
@@ -151,23 +173,26 @@ class ProfileTutor extends Component {
     }
 
     guardarCambios() {
-        var userId = fire.auth().currentUser.uid;
-        var ref = fire.database().ref().child("users/" + userId);
+        firebase.auth().onAuthStateChanged(user => {
+            var userId = fire.auth().currentUser.uid;
+            var ref = fire.database().ref().child("usuarios/tutores/" + userId);
 
-        ref.update({
-            nombre: this.state.nombreEdit,
-            email: this.state.email,
-            carrera: this.state.carrera,
+            ref.update({
+                nombre: this.state.nombreEdit,
+                email: this.state.email,
+                carrera: this.state.carrera,
+            });
+
         });
 
-        this.setState({});
+
     }
 
     deleteClass(classToDelete) {
         let currentComponent = this;
         var userId = fire.auth().currentUser.uid;
 
-        var ref = fire.database().ref().child("users/" + userId);
+        var ref = fire.database().ref().child("usuarios/tutores/" + userId);
 
         ref.once("value").then(function (snapshot) {
             if (snapshot.child("tutClases").child(classToDelete).exists()) {
@@ -261,7 +286,7 @@ class ProfileTutor extends Component {
                 console.log("uid: " + userId);
                 console.log("idk");
 
-                const refUsuario = fire.database().ref().child("users/" + userId);
+                const refUsuario = fire.database().ref().child("usuarios/tutores/" + userId);
 
                 refUsuario.once("value").then(snapshot => {
 
@@ -271,9 +296,9 @@ class ProfileTutor extends Component {
                     const carrera = data.carrera;
 
                     this.setState({
-                        nombre : nombre,
-                        emailStatic : email,
-                        carreraStatic : carrera
+                        nombre: nombre,
+                        emailStatic: email,
+                        carreraStatic: carrera
                     })
                 });
 
@@ -284,7 +309,7 @@ class ProfileTutor extends Component {
                 //console.log(name);
 
 
-                var ref = fire.database().ref().child("users").child(userId).child("tutClases");
+                var ref = fire.database().ref().child("usuarios/tutores/").child(userId).child("tutClases");
                 var refAllClasses = fire.database().ref().child("clases");
 
                 refAllClasses.on("value", function (snapshot) {
@@ -392,7 +417,7 @@ class ProfileTutor extends Component {
                         <Grid item xs={12} md={6}>
                             <Typography style={{ flex: 1 }}>
                                 Tutorías disponibles
-                                <Button onClick={this.handleClickOpen} color="primary" aria-label="Add">
+                                <Button onClick={() => this.handleClickOpen} color="primary" aria-label="Add">
                                     <AddIcon />
                                 </Button>
                             </Typography>
@@ -443,8 +468,8 @@ class ProfileTutor extends Component {
                             <Select
                                 native
                                 value={this.state.select}
-                                onClick={this.handleChange('select')}
-                                onChange={this.handleChange('select')}
+                                onClick={() => this.handleChange('select')}
+                                onChange={() => this.handleChange('select')}
                                 placeholder="asd"
                             >
 
@@ -458,7 +483,7 @@ class ProfileTutor extends Component {
                     <DialogActions>
 
                         <Button onClick={() => this.addClass(this.state.select)} color="primary">
-                        
+
                             Agregar clase
             </Button>
                     </DialogActions>
