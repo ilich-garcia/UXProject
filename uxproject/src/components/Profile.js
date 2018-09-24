@@ -397,17 +397,17 @@ class ProfileTutor extends Component {
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Nombre</label>
-                        <input onChange={this.handleChange('nombreEdit')} className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre} />
+                        <input onChange={this.handleChange('nombreEdit')} className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre}/>
                     </div>
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Carrera</label>
-                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carreraStatic} />
+                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carreraStatic}/>
                     </div>
 
                     <div className="">
                         <label htmlFor="ex1">Email</label>
-                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.emailStatic} />
+                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.emailStatic}/>
                     </div>
 
 

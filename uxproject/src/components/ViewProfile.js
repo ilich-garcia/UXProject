@@ -12,29 +12,41 @@ import Typography from "@material-ui/core/Typography";
 import DeleteIcon from "@material-ui/icons/Portrait";
 import { Link } from "react-router-dom";
 
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+
 export default class ViewProfile extends Component {
     constructor(props) {
         super(props);
         this.classes = props.classes;
 
         this.state = {
-            userID : "",
-            nombre : "",
+            userID: "",
+            nombre: "",
             email: "",
-            clases : [],
+            clases: [],
             user: null,
+            open: false,
+            mensaje: "hello"
         }
+        this.handleClickOpen = this.handleClickOpen.bind(this);
         this.nameMethod = this.nameMethod.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
+        this.handleClose = this.handleClose.bind(this);
     }
 
-    componentDidMount(){
+    handleClickOpen = () => {
+        this.setState({ open: true });
+    };
+
+    componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
-              this.setState({ user });
+                this.setState({ user });
 
-              const ref = firebase.database().ref().child("users").child(this.props.objectUser.uid).child("tutClases");
+                const ref = firebase.database().ref().child("users").child(this.props.objectUser.uid).child("tutClases");
 
                 ref.on("value", snapshot => {
                     let list = []
@@ -51,31 +63,37 @@ export default class ViewProfile extends Component {
                 });
 
                 this.setState({
-                    userID : this.props.objectUser.uid,
+                    userID: this.props.objectUser.uid,
                     nombre: this.props.objectUser.nombre,
                     email: this.props.objectUser.email
 
                 })
 
 
-              
+
 
             } else {
-              this.setState(
-                { user: null }
-              )
-              console.log("not authed");
+                this.setState(
+                    { user: null }
+                )
+                console.log("not authed");
             }
-          });
+        });
+
+
     }
 
-    componentDidMount(){
+    handleClose = () => {
+        this.setState({ open: false });
+    };
+
+    componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
-              this.setState({ user });
+                this.setState({ user: user });
 
-              const ref = firebase.database().ref().child("users").child(this.props.objectUser.uid).child("tutClases");
+                const ref = firebase.database().ref().child("users").child(this.props.objectUser.uid).child("tutClases");
 
                 ref.on("value", snapshot => {
                     let list = []
@@ -92,19 +110,50 @@ export default class ViewProfile extends Component {
                 }).bind(this);
 
             } else {
-              this.setState(
-                { user: null }
-              )
-              console.log("not authed");
+                this.setState(
+                    { user: null }
+                )
+                console.log("not authed");
             }
-          });
+        });
     }
 
     nameMethod() {
 
     }
 
-    sendMessage(){
+    sendMessage() {
+        let currentComponent = this;
+        firebase.auth().onAuthStateChanged(user => {
+            if (user !== null) {
+                this.setState({ user: user });
+
+                const userID = this.props.objectUser.uid;
+
+                const messagesRef = firebase.database().ref().child("messages").child(this.props.objectUser.uid);
+
+                messagesRef.once("value").then(snapshot => {
+                    var key = messagesRef.push().getKey();
+                    //console.log("key: " + key);
+                    let contMensajes = 0;
+                    if (!snapshot.child("notRead").exists()) {
+                        contMensajes++;
+                    } else {
+                        contMensajes = snapshot.val().notRead + 1;
+                    }
+
+                    //console.log("message = " + this.state.message);
+
+                    messagesRef.update({ notRead: contMensajes });
+                    messagesRef.child(key).set({ message: currentComponent.state.mensaje, sentBy : user.uid });
+                    //ref.child("tutClases").child(newClass).set(true);
+                });
+
+
+            }
+        });
+
+
 
     }
 
@@ -115,12 +164,13 @@ export default class ViewProfile extends Component {
                     <h1>Tutor: {this.props.objectUser.nombre}</h1>
                     <p>Aquí puedes ver la información del tutor.</p>
 
-                    <Link
+                    {/*<Link
                         to="/enviarMensaje"
                         style={{ color: "#fff", textDecoration: "none" }}
                     >
                         <Button onClick={() => this.sendMessage()} raised="true" type="button" className="btn btn-primary">Enviar mensaje </Button>
-                    </Link>
+                    </Link>*/}
+                    <Button onClick={() => this.handleClickOpen()} raised="true" type="button" className="btn btn-primary">Enviar mensaje </Button>
 
                 </div>
 
@@ -174,13 +224,33 @@ export default class ViewProfile extends Component {
                     </Grid>
 
                     <br />
-                    {/*
-                <Dialog open={open}
-                    onClose={handleClose}
-                    aria-labelledby="form-dialog-title">
+
+                    <Dialog open={this.state.open}
+                        onClose={this.handleClose}
+                        aria-labelledby="form-dialog-title" >
 
 
-</Dialog>*/}
+                        <div>
+                            <div className="jumbotron">
+                                <h1>Enviar mensaje</h1>
+                                <p>Tutor: {this.props.objectUser.nombre}</p>
+
+                                {/*<Link
+                        to="/enviarMensaje"
+                        style={{ color: "#fff", textDecoration: "none" }}
+                    >
+                        <Button onClick={() => this.sendMessage()} raised="true" type="button" className="btn btn-primary">Enviar mensaje </Button>
+                    </Link>*/}
+
+
+                            </div>
+                            <div>
+
+                                <Button onClick={() => this.sendMessage()} raised="true" type="button" className="btn btn-primary">Enviar</Button>
+                            </div>
+
+                        </div>
+                    </Dialog>
                 </div>
 
             </div>

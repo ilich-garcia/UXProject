@@ -194,7 +194,7 @@ class ListaTutores extends Component {
     openProfile(data) {
         firebase.auth().onAuthStateChanged(user => {
             if (user !== null) {
-                const ref = fire.database().ref().child("usuarios/tutores").child(data.uid).child("tutClases");
+                const ref = fire.database().ref().child("usuarios/tutores/").child(data.uid).child("tutClases");
 
                 ref.on("value", snapshot => {
                     let list = []
@@ -263,7 +263,7 @@ class ListaTutores extends Component {
             if (user !== null) {
 
                 //recorrer todos los usuarios y verificar si tipo cuenta === tutor
-                var refTutores1 = fire.database().ref().child("users");
+                var refTutores1 = fire.database().ref().child("usuarios/tutores/");
                 //o ya tener en la base de datos los tutores de esta forma
                 //var refTutores = fire.database().ref().child("usuarios/tutores");
 
