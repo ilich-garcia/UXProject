@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import firebase from "firebase";
-import { BrowserRouter, Switch, Route , Redirect } from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -8,11 +8,11 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import { Link } from "react-router-dom";
-import ProfileTutor from './components/Profile';
-import ListaTutores from './components/ListaTutores';
-import Tutorial from './components/Tutorial';
-import EnviarMensaje from './components/EnviarMensaje';
-import Register from './components/Register'
+import ProfileTutor from "./components/Profile";
+import ListaTutores from "./components/ListaTutores";
+import Tutorial from "./components/Tutorial";
+import EnviarMensaje from "./components/EnviarMensaje";
+import Register from "./components/Register";
 
 const styles = {
   root: {
@@ -91,13 +91,10 @@ class App extends Component {
              .set({ displayName: user.displayName, photoURL: user.photoURL });
         */
       } else {
-        this.setState(
-          { user: null }
-        )
+        this.setState({ user: null });
       }
     });
   }
-
 
   /*
     componentDidMount() {
@@ -121,8 +118,8 @@ class App extends Component {
   render() {
     return (
       <BrowserRouter>
-        <div >
-          <AppBar position="fixed"  >
+        <div>
+          <AppBar position="fixed">
             <Toolbar>
               <Typography variant="title" color="inherit" style={styles.flex}>
                 Grappther
@@ -130,50 +127,83 @@ class App extends Component {
 
               <div>
                 {this.state.user ? (
-                  <Link to="/perfil" style ={{flexGrow:1}}>
-                    <IconButton aria-haspopup="true" color="inherit">
-                      <Avatar
-                        src={this.state.user ? this.state.user.photoURL : ""}
-                      />
-                    </IconButton>
-                  </Link>
-                ) : (
-                  <div />
-                )}
-                <Link to="/" style={{ color: "#fff", textDecoration: "none", flexGrow:1 }}>
-                  <Button aria-haspopup="true" color="inherit">
-                    HOME
-                  </Button>
-                </Link>
-                <Link
-                  to="/tutorial"
-                  style={{ color: "#fff", textDecoration: "none"  , flexGrow:1}}
-                >
-                  <Button aria-haspopup="true" color="inherit">
-                    CREAR TUTORIA
-                  </Button>
-                </Link>
-                <Link
-                  to="/listaTutores"
-                  style={{ color: "#fff", textDecoration: "none" }}
-                >
-                  <Button aria-haspopup="true" color="inherit">
-                    Tutores
-                  </Button>
-                </Link>
-                {this.state.user ? (
-                  <Button
-                    onClick={this.handleLogOut}
-                    aria-haspopup="true"
-                    color="inherit"
-                  >
-                    LOGOUT
-                  </Button>
+                  <span>
+                    <Link to="/perfil" style={{ flexGrow: 1 }}>
+                      <IconButton aria-haspopup="true" color="inherit">
+                        <Avatar
+                          src={this.state.user ? this.state.user.photoURL : ""}
+                        />
+                      </IconButton>
+                    </Link>
+                    <Link
+                      to="/"
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        flexGrow: 1
+                      }}
+                    >
+                      <Button aria-haspopup="true" color="inherit">
+                        HOME
+                      </Button>
+                    </Link>
+                    <Link
+                      to="/tutorial"
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        flexGrow: 1
+                      }}
+                    >
+                      <Button aria-haspopup="true" color="inherit">
+                        CREAR TUTORIA
+                      </Button>
+                    </Link>
+                    <Link
+                      to="/listaTutores"
+                      style={{ color: "#fff", textDecoration: "none" }}
+                    >
+                      <Button aria-haspopup="true" color="inherit">
+                        Tutores
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={this.handleLogOut}
+                      aria-haspopup="true"
+                      color="inherit"
+                    >
+                      LOGOUT
+                    </Button>
+                  </span>
                 ) : (
                   <span>
                     <Link
+                      to="/"
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        flexGrow: 1
+                      }}
+                    >
+                      <Button aria-haspopup="true" color="inherit">
+                        HOME
+                      </Button>
+                    </Link>
+                    <Link
+                      to="/listaTutores"
+                      style={{ color: "#fff", textDecoration: "none" }}
+                    >
+                      <Button aria-haspopup="true" color="inherit">
+                        Tutores
+                      </Button>
+                    </Link>
+                    <Link
                       to="/login"
-                      style={{ color: "#fff", textDecoration: "none"  ,flexGrow:1}}
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        flexGrow: 1
+                      }}
                     >
                       <Button
                         onClick={this.handleAuth}
@@ -185,7 +215,11 @@ class App extends Component {
                     </Link>
                     <Link
                       to="/register"
-                      style={{ color: "#fff", textDecoration: "none"  ,flexGrow:1}}
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        flexGrow: 1
+                      }}
                     >
                       <Button
                         //onClick={this.handleAuth}
@@ -204,14 +238,10 @@ class App extends Component {
             <Route exact path="/">
               {<div>HOME</div>}
             </Route>
-            <Route path="/tutorial" component={Tutorial}></Route>
-            <Route path="/perfil" component={ProfileTutor}></Route>
-            <Route path = "/listaTutores" component = {ListaTutores}></Route>
-            
-            {//tira error
-            }
-            <Route path = "/enviarMensaje" component = {EnviarMensaje}/>
-            <Route path="/perfil">{<div>PERFIL</div>}</Route>
+            <Route path="/tutorial" component={Tutorial} />
+            <Route path="/perfil" component={ProfileTutor} />
+            <Route path="/listaTutores" component={ListaTutores} />
+            <Route path="/enviarMensaje" component={EnviarMensaje} />
             <Route
               path="/login"
               render={() =>
@@ -222,21 +252,9 @@ class App extends Component {
                 )
               }
             />
-            <Route
-              path="/inicioSesion"
-              render={() => (
-                <div style={styles.button}>
-                </div>
-              )}
-            />
-            <Route
-              path="/register"
-              render={() => (
-                  <Register />
-              )}
-            />
+            <Route path="/register" render={() => <Register />} />
           </Switch>
-        </div>  
+        </div>
       </BrowserRouter>
     );
   }
@@ -244,4 +262,3 @@ class App extends Component {
 /*const currUser = this.state.user;
 export const currUser;*/
 export default App;
-
