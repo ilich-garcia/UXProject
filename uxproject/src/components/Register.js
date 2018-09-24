@@ -164,13 +164,15 @@ class Register extends Component {
       jue: this.state.jue,
       vie: this.state.vie,
       sab: this.state.sab,
-      dom: this.state.dom
+      dom: this.state.dom,
+      displayName:firebase.auth().currentUser.uid,
     });
   }
   processSignInTutor() {
     console.log(firebase.auth().currentUser.uid);
     const ref = firebase.database().ref(`usuarios/tutores/${firebase.auth().currentUser.uid}`);
     ref.set({
+      displayName:firebase.auth().currentUser.uid,
       edad: this.state.edad,
       universidad: this.state.universidad,
       conocimientos: this.state.conocimientos,
