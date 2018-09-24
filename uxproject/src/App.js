@@ -127,6 +127,14 @@ class App extends Component {
                     CREAR TUTORIA
                   </Button>
                 </Link>
+                <Link
+                  to="/listaTutores"
+                  style={{ color: "#fff", textDecoration: "none" }}
+                >
+                  <Button aria-haspopup="true" color="inherit">
+                    Tutores
+                  </Button>
+                </Link>
                 {this.state.user ? (
                   <Button
                     onClick={this.handleLogOut}
@@ -152,7 +160,8 @@ class App extends Component {
               {<div>HOME</div>}
             </Route>
             <Route path="/crearTutoria">{<div>Crear Tutoria</div>}</Route>
-            <Route path="/perfil" component={ListaTutores}></Route>
+            <Route path="/perfil" component={ProfileTutor}></Route>
+            <Route path = "/listaTutores" component = {ListaTutores}></Route>
           </Switch>
         </div>
       </BrowserRouter>
