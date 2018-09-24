@@ -9,6 +9,7 @@ import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import { Link } from "react-router-dom";
 import ProfileTutor from './components/Profile';
+import ListaTutores from './components/ListaTutores';
 
 const styles = {
   root: {
@@ -150,7 +151,7 @@ class App extends Component {
               {<div>HOME</div>}
             </Route>
             <Route path="/crearTutoria">{<div>Crear Tutoria</div>}</Route>
-            <Route path="/perfil" component = {ProfileTutor}></Route>
+            <Route path="/perfil" component = {ListaTutores}></Route>
           </Switch>
         </div>
       </BrowserRouter>

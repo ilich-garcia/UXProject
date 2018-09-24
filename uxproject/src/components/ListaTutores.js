@@ -20,7 +20,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import FolderIcon from "@material-ui/icons/Folder";
-import DeleteIcon from "@material-ui/icons/Delete";
+import ProfileIcon from "@material-ui/icons/Portrait";
 import AddIcon from '@material-ui/icons/Add';
 import fire from '../firebase/firebase';
 import SimpleSnackBar from './SnackBar';
@@ -34,6 +34,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 
 import { UserProfile } from "./UserProfile";
@@ -71,7 +72,7 @@ const styles = theme => ({
 });
 
 
-class ProfileTutor extends Component {
+class ListaTutores extends Component {
     constructor(props) {
         super(props);
         this.classes = props.classes;
@@ -82,12 +83,12 @@ class ProfileTutor extends Component {
             nombre: "",
             nombreEdit: "",
             carrera: "",
-            carreraStatic : "",
-            emailStatic : "",
             email: "",
             clases: [],
             select: '',
-            myClasses: [],
+            tutores: [],
+            selectedProfile: null,
+            selectedProfileClases: []
 
         };
         //this.addClasses = this.addClasses.bind(this);
@@ -100,7 +101,7 @@ class ProfileTutor extends Component {
         this.handleClickOpen = this.handleClickOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.guardarCambios = this.guardarCambios.bind(this);
-        this.checkIfExists = this.checkIfExists.bind(this);
+        this.openProfile = this.openProfile.bind(this);
 
     }
 
@@ -159,8 +160,6 @@ class ProfileTutor extends Component {
             email: this.state.email,
             carrera: this.state.carrera,
         });
-
-        this.setState({});
     }
 
     deleteClass(classToDelete) {
@@ -190,6 +189,40 @@ class ProfileTutor extends Component {
         console.log(event.target.value);
     };
 
+
+    openProfile(data) {
+        firebase.auth().onAuthStateChanged(user => {
+            if (user !== null) {
+                const ref = fire.database().ref().child("users").child(data.uid).child("tutClases");
+
+                ref.on("value", snapshot => {
+                    let list = []
+                    snapshot.forEach(childSnapshot => {
+                        var key = childSnapshot.key;
+                        console.log(key);
+                        console.log(childSnapshot.val());
+                        list.push(key);
+
+                        this.setState({
+                            selectedProfileClases: list
+                        })
+                    })
+                });
+
+                this.setState({
+                    selectedProfile: data
+                });
+
+                this.setState({ open: true });
+            }
+
+        });
+
+
+
+
+    }
+
     testEditClasses(e) {
         e.preventDefault();
 
@@ -197,31 +230,6 @@ class ProfileTutor extends Component {
 
 
     }
-
-    checkIfExists() {//se puede utilizar para saber si el usuario es tutor o alumno
-        var userID = fire.auth().currentUser.uid;
-        var ref = fire.database().ref().child("users");
-        //var refTeachers = fire.database().ref().child("users/teachers");
-
-        /*
-        refTeachers.once("value").then(snapshot => {
-            if(snapshot.child(userID).exists()){
-                //es tutor
-                //this.setState({tipoCuenta : 'tutor'});
-            }else{
-                //es alumno
-            }
-        });*/
-
-        ref.once("value").then(snapshot => {
-            if (snapshot.child(userID).exists()) {
-                console.log("existe usuario");
-            } else {
-                console.log("not exists");
-            }
-        });
-    }
-
     /* agregando algunas clases a la base de datos
         addClasses(e) {
             e.preventDefault(); // <- prevent form submit from reloading the page
@@ -256,61 +264,23 @@ class ProfileTutor extends Component {
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
-                //const name = auth.currentUser.displayName;
-                var userId = auth.currentUser.uid;
-                console.log("uid: " + userId);
-                console.log("idk");
 
-                const refUsuario = fire.database().ref().child("users/" + userId);
+                //recorrer todos los usuarios y verificar si tipo cuenta === tutor
+                var refTutores1 = fire.database().ref().child("users");
+                //o ya tener en la base de datos los tutores de esta forma
+                //var refTutores = fire.database().ref().child("usuarios/tutores");
 
-                refUsuario.once("value").then(snapshot => {
-
-                    const data = snapshot.val();
-                    const nombre = data.nombre;
-                    const email = data.email;
-                    const carrera = data.carrera;
-
-                    this.setState({
-                        nombre : nombre,
-                        emailStatic : email,
-                        carreraStatic : carrera
-                    })
-                });
-
-                this.setState({
-                    dense: false,
-                    secondary: false,
-                });
-                //console.log(name);
-
-
-                var ref = fire.database().ref().child("users").child(userId).child("tutClases");
-                var refAllClasses = fire.database().ref().child("clases");
-
-                refAllClasses.on("value", function (snapshot) {
-                    let list = []
-                    snapshot.forEach(function (childSnapshot) {
-                        var key = childSnapshot.key;
-                        console.log(key);
-                        console.log(childSnapshot.val());
+                refTutores1.on("value", snapshot => {
+                    let list = [];
+                    snapshot.forEach(childSnapshot => {
+                        //var key = childSnapshot.key;
+                        //console.log(key);
+                        //console.log(childSnapshot.val());
                         list.push(childSnapshot.val());
-
-                        currentComponent.setState({
-                            clases: list
-                        })
-                    })
-                });
-
-                ref.on("value", function (snapshot) {
-                    let list = []
-                    snapshot.forEach(function (childSnapshot) {
-                        var key = childSnapshot.key;
-                        console.log(key);
                         console.log(childSnapshot.val());
-                        list.push(key);
 
-                        currentComponent.setState({
-                            myClasses: list
+                        this.setState({
+                            tutores: list
                         })
                     })
                 });
@@ -341,6 +311,65 @@ class ProfileTutor extends Component {
 
     //obtener los datos del usuario logged in en el componentWillMount y cambiar el state
     render() {
+
+        let data = this.state.tutores.map((doc, i) => {
+            return (
+
+                <div key={i}>
+                    <ListItem primarytext={doc.nombre} key={i}>
+                        <ListItemText
+                            primary={doc.nombre}
+                        />
+                        <ListItemSecondaryAction onClick={() => this.openProfile(doc)} >
+                            <Button aria-label="verPerfil">
+                                Ver Perfil <ProfileIcon />
+                            </Button>
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                </div>
+
+
+
+
+            )
+        });
+
+        return (
+            <div>
+                <Grid container spacing={16}>
+
+                    <Grid item xs={12} md={6}>
+                        <Typography style={{ flex: 1 }}>
+                            Tutores
+                        </Typography>
+
+
+                        <List>
+                            {data}
+                        </List>
+
+                    </Grid>
+
+                </Grid>
+
+                {this.state.selectedProfile !== null ? (<Dialog open={this.state.open}
+                    onClose={this.handleClose}
+                    aria-labelledby="form-dialog-title">
+
+                    <UserProfile
+                        profileObject={this.state.selectedProfile}
+                        uid={this.state.selectedProfile.uid}
+                        clases={this.state.selectedProfileClases}
+
+                    />
+                </Dialog>) : (<div></div>)
+
+                }
+
+
+
+            </div>
+        );
         /*
                 return(
                     <UserProfile nombre = {this.state.nombre} tipoCuenta = 'tutor' carrera = {this.state.carrera} email = {this.state.email} clases = {this.state.myClasses}></UserProfile>
@@ -348,14 +377,8 @@ class ProfileTutor extends Component {
 
 
         //en vez de esto pordia pasarlo el objeto del usuario de la base de datos
+        /*
 
-
-        //view del tutor
-        /*if (this.state.tipoCuenta === 'tutor') {
-            return ();
-        } else {//es alumno
-            return ();
-        }*/
 
         const { classes } = this.props;
         const { dense, secondary } = this.state;
@@ -377,12 +400,12 @@ class ProfileTutor extends Component {
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Carrera</label>
-                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carreraStatic} />
+                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carrera} />
                     </div>
 
                     <div className="">
                         <label htmlFor="ex1">Email</label>
-                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.emailStatic} />
+                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.email} />
                     </div>
 
 
@@ -398,8 +421,6 @@ class ProfileTutor extends Component {
                             </Typography>
 
 
-                            {//lista todas las clases que el usuario puede dar tutorias
-                            }
                             <List>
 
 
@@ -426,7 +447,7 @@ class ProfileTutor extends Component {
 
 
 
-                    <br /><button onClick={() => this.guardarCambios()} type="button" className="btn btn-primary">Guardar Cambios</button>
+                    <br /><button onClick={() => this.testFilter()} type="button" className="btn btn-primary">Guardar Cambios</button>
                     <br />
                 </div>
 
@@ -438,8 +459,6 @@ class ProfileTutor extends Component {
                     <DialogTitle id="form-dialog-title">Agregar Clase</DialogTitle>
                     <DialogContent>
                         <FormControl>
-                            {//lista todas las clases que estan disponibles para dar tutorias
-                            }
                             <Select
                                 native
                                 value={this.state.select}
@@ -458,7 +477,6 @@ class ProfileTutor extends Component {
                     <DialogActions>
 
                         <Button onClick={() => this.addClass(this.state.select)} color="primary">
-                        
                             Agregar clase
             </Button>
                     </DialogActions>
@@ -467,7 +485,7 @@ class ProfileTutor extends Component {
 
             </div>
         );
-
+*/
     }
 
 }
@@ -490,7 +508,7 @@ class ProfileTutor extends Component {
 
                     */
 /*
-ProfileTutor.propTypes = {
+ListaTutores.propTypes = {
     classes: PropTypes.object.isRequired,
 };*/
 
@@ -507,7 +525,7 @@ ProfileTutor.propTypes = {
 
                     </div>*/
 
-export default ProfileTutor;
+export default ListaTutores;
 
 /*
                     <div class="input-group">

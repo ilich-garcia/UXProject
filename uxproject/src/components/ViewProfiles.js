@@ -3,7 +3,6 @@ import "../bootstrap.min.css";
 import PropTypes from 'prop-types';
 import { auth } from '../firebase/firebase';
 import firebase from "firebase";
-import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
@@ -13,10 +12,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Button from '@material-ui/core/Button';
-import CardActions from '@material-ui/core/CardActions';
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import FolderIcon from "@material-ui/icons/Folder";
@@ -36,39 +32,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 
-import { UserProfile } from "./UserProfile";
-
 //import DeleteIcon from "@material-ui/icons/Delete";
 //import FilterListIcon from "@material-ui/icons/FilterList";
 //import { firebase } from "@firebase/app";
-
-function generate(element) {
-    return [0].map(value =>
-        React.cloneElement(element, {
-            key: value,
-        }),
-    );
-}
-
-const styles = theme => ({
-    root: {
-        flexGrow: 1,
-        maxWidth: 752,
-    },
-    demo: {
-        backgroundColor: theme.palette.background.paper,
-    },
-    title: {
-        margin: `${theme.spacing.unit * 4}px 0 ${theme.spacing.unit * 2}px`,
-    },
-    formControl: {
-        margin: theme.spacing.unit,
-        minWidth: 120,
-    },
-    selectEmpty: {
-        marginTop: theme.spacing.unit * 2,
-    },
-});
 
 
 class ProfileTutor extends Component {
@@ -82,8 +48,6 @@ class ProfileTutor extends Component {
             nombre: "",
             nombreEdit: "",
             carrera: "",
-            carreraStatic : "",
-            emailStatic : "",
             email: "",
             clases: [],
             select: '',
@@ -100,8 +64,7 @@ class ProfileTutor extends Component {
         this.handleClickOpen = this.handleClickOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.guardarCambios = this.guardarCambios.bind(this);
-        this.checkIfExists = this.checkIfExists.bind(this);
-
+        this.testFilter = this.testFilter.bind(this);
     }
 
     addClass(newClass) {
@@ -159,8 +122,6 @@ class ProfileTutor extends Component {
             email: this.state.email,
             carrera: this.state.carrera,
         });
-
-        this.setState({});
     }
 
     deleteClass(classToDelete) {
@@ -197,31 +158,6 @@ class ProfileTutor extends Component {
 
 
     }
-
-    checkIfExists() {//se puede utilizar para saber si el usuario es tutor o alumno
-        var userID = fire.auth().currentUser.uid;
-        var ref = fire.database().ref().child("users");
-        //var refTeachers = fire.database().ref().child("users/teachers");
-
-        /*
-        refTeachers.once("value").then(snapshot => {
-            if(snapshot.child(userID).exists()){
-                //es tutor
-                //this.setState({tipoCuenta : 'tutor'});
-            }else{
-                //es alumno
-            }
-        });*/
-
-        ref.once("value").then(snapshot => {
-            if (snapshot.child(userID).exists()) {
-                console.log("existe usuario");
-            } else {
-                console.log("not exists");
-            }
-        });
-    }
-
     /* agregando algunas clases a la base de datos
         addClasses(e) {
             e.preventDefault(); // <- prevent form submit from reloading the page
@@ -248,6 +184,7 @@ class ProfileTutor extends Component {
 
 
     componentDidMount() {
+        //cargar los usuarios que son tutores
         let currentComponent = this;
 
 
@@ -256,32 +193,17 @@ class ProfileTutor extends Component {
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
-                //const name = auth.currentUser.displayName;
+                const name = auth.currentUser.displayName;
                 var userId = auth.currentUser.uid;
                 console.log("uid: " + userId);
                 console.log("idk");
 
-                const refUsuario = fire.database().ref().child("users/" + userId);
-
-                refUsuario.once("value").then(snapshot => {
-
-                    const data = snapshot.val();
-                    const nombre = data.nombre;
-                    const email = data.email;
-                    const carrera = data.carrera;
-
-                    this.setState({
-                        nombre : nombre,
-                        emailStatic : email,
-                        carreraStatic : carrera
-                    })
-                });
-
                 this.setState({
+                    nombre: name,
                     dense: false,
                     secondary: false,
                 });
-                //console.log(name);
+                console.log(name);
 
 
                 var ref = fire.database().ref().child("users").child(userId).child("tutClases");
@@ -341,21 +263,7 @@ class ProfileTutor extends Component {
 
     //obtener los datos del usuario logged in en el componentWillMount y cambiar el state
     render() {
-        /*
-                return(
-                    <UserProfile nombre = {this.state.nombre} tipoCuenta = 'tutor' carrera = {this.state.carrera} email = {this.state.email} clases = {this.state.myClasses}></UserProfile>
-                );*/
 
-
-        //en vez de esto pordia pasarlo el objeto del usuario de la base de datos
-
-
-        //view del tutor
-        /*if (this.state.tipoCuenta === 'tutor') {
-            return ();
-        } else {//es alumno
-            return ();
-        }*/
 
         const { classes } = this.props;
         const { dense, secondary } = this.state;
@@ -364,28 +272,11 @@ class ProfileTutor extends Component {
 
             <div>
                 <div className="jumbotron">
-                    <h1>Hola {this.state.nombre}</h1>
-                    <p>Aquí puedes editar tu perfil</p>
+                    <h1>Tutores</h1>
+                    <p>Esta es una lista de los tutores disponibles</p>
                 </div>
 
                 <div className="container">
-
-                    <div className="col-xs-2">
-                        <label htmlFor="ex1">Nombre</label>
-                        <input onChange={this.handleChange('nombreEdit')} className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre} />
-                    </div>
-
-                    <div className="col-xs-2">
-                        <label htmlFor="ex1">Carrera</label>
-                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carreraStatic} />
-                    </div>
-
-                    <div className="">
-                        <label htmlFor="ex1">Email</label>
-                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.emailStatic} />
-                    </div>
-
-
 
                     <Grid container spacing={16}>
 
@@ -398,8 +289,6 @@ class ProfileTutor extends Component {
                             </Typography>
 
 
-                            {//lista todas las clases que el usuario puede dar tutorias
-                            }
                             <List>
 
 
@@ -426,7 +315,7 @@ class ProfileTutor extends Component {
 
 
 
-                    <br /><button onClick={() => this.guardarCambios()} type="button" className="btn btn-primary">Guardar Cambios</button>
+                    <br /><button onClick={() => this.testFilter()} type="button" className="btn btn-primary">Guardar Cambios</button>
                     <br />
                 </div>
 
@@ -438,8 +327,6 @@ class ProfileTutor extends Component {
                     <DialogTitle id="form-dialog-title">Agregar Clase</DialogTitle>
                     <DialogContent>
                         <FormControl>
-                            {//lista todas las clases que estan disponibles para dar tutorias
-                            }
                             <Select
                                 native
                                 value={this.state.select}
@@ -458,7 +345,6 @@ class ProfileTutor extends Component {
                     <DialogActions>
 
                         <Button onClick={() => this.addClass(this.state.select)} color="primary">
-                        
                             Agregar clase
             </Button>
                     </DialogActions>
