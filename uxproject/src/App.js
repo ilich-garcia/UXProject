@@ -146,7 +146,7 @@ class App extends Component {
                   </Button>
                 </Link>
                 <Link
-                  to="/crearTutoria"
+                  to="/tutorial"
                   style={{ color: "#fff", textDecoration: "none"  , flexGrow:1}}
                 >
                   <Button aria-haspopup="true" color="inherit">
@@ -204,7 +204,7 @@ class App extends Component {
             <Route exact path="/">
               {<div>HOME</div>}
             </Route>
-            <Route path="/crearTutoria">{<div>Crear Tutoria</div>}</Route>
+            <Route path="/tutorial" component={Tutorial}></Route>
             <Route path="/perfil" component={ProfileTutor}></Route>
             <Route path = "/listaTutores" component = {ListaTutores}></Route>
             

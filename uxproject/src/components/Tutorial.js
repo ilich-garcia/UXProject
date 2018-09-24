@@ -14,10 +14,12 @@ class Tutorial extends Component {
     }
   }
 
+  /*
   handleChange = name => event => {
     this.setState({ [name]: event.target.value });
     console.log(event.target.value);
   };
+  */
 
   render() {
     return (
