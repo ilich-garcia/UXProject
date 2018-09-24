@@ -10,6 +10,7 @@ import Avatar from "@material-ui/core/Avatar";
 import { Link } from "react-router-dom";
 import ProfileTutor from './components/Profile';
 import ListaTutores from './components/ListaTutores';
+import Tutorial from './components/Tutorial';
 
 const styles = {
   root: {
@@ -62,38 +63,38 @@ class App extends Component {
       if (user !== null) {
         this.setState({ user });
         //Se movio a Cloud functions
-     /*   firebase
-          .database()
-          .ref("users/" + user.uid)
-          .set({ displayName: user.displayName, photoURL: user.photoURL });
-     */
-        }else{
-          this.setState(
-            {user : null}
-          )
-        }
+        /*   firebase
+             .database()
+             .ref("users/" + user.uid)
+             .set({ displayName: user.displayName, photoURL: user.photoURL });
+        */
+      } else {
+        this.setState(
+          { user: null }
+        )
+      }
     });
   }
 
 
-/*
-  componentDidMount() {
-    this.removeListener = firebaseAuth().onAuthStateChanged(user => {
-      if (user) {
-        this.setState({
-          authed: true,
-          loading: false
-        });
-        //staaate = true;
-      } else {
-        this.setState({
-          authed: false,
-          loading: false
-        });
-        //staaate = false;
-      }
-    });
-  }*/
+  /*
+    componentDidMount() {
+      this.removeListener = firebaseAuth().onAuthStateChanged(user => {
+        if (user) {
+          this.setState({
+            authed: true,
+            loading: false
+          });
+          //staaate = true;
+        } else {
+          this.setState({
+            authed: false,
+            loading: false
+          });
+          //staaate = false;
+        }
+      });
+    }*/
 
   render() {
     return (
@@ -151,7 +152,7 @@ class App extends Component {
               {<div>HOME</div>}
             </Route>
             <Route path="/crearTutoria">{<div>Crear Tutoria</div>}</Route>
-            <Route path="/perfil" component = {ListaTutores}></Route>
+            <Route path="/perfil" component={ListaTutores}></Route>
           </Switch>
         </div>
       </BrowserRouter>
