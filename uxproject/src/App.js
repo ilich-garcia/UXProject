@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import firebase from "firebase";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route , Redirect } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -12,6 +12,7 @@ import ProfileTutor from './components/Profile';
 import ListaTutores from './components/ListaTutores';
 import Tutorial from './components/Tutorial';
 import EnviarMensaje from './components/EnviarMensaje';
+import Register from './components/Register'
 
 const styles = {
   root: {
@@ -19,39 +20,58 @@ const styles = {
   },
   flex: {
     flexGrow: 1
+  },
+  button: {
+    justifyContent: "center"
   }
 };
 
 class App extends Component {
   constructor(props) {
     super(props);
-
+    this.processSignIn = this.processSignIn.bind(this);
+    this.processAuth = this.processAuth.bind(this);
     this.handleLogOut = this.handleLogOut.bind(this);
     this.handleAuth = this.handleAuth.bind(this);
   }
   state = {
-    user: null
+    user: null,
+    signIn: false
   };
 
   handleAuth() {
+    this.processAuth();
+  }
+
+  processAuth() {
+    //console.log("Entro al AUTH");
     const provider = new firebase.auth.GoogleAuthProvider();
 
     firebase
       .auth()
       .signInWithPopup(provider)
       .then(result => {
-        alert(`${result.user.email} ha iniciado sesión`);
         this.setState({
           user: firebase.auth().currentUser
         });
       })
       .catch(error => {
         alert(`Error ${error.code}: ${error.message}`);
+      })
+      .then(() => {
+        this.processSignIn();
       });
   }
 
+  processSignIn() {
+    console.log(firebase.auth().currentUser.uid);
+    const ref = firebase.database().ref(`users/${this.state.user.uid}`);
+    ref.on("value", snapshot => {
+      console.log(snapshot.val().signIn);
+    });
+  }
+
   handleLogOut() {
-    alert("¡Has cerrado sesión exitosamente!");
     firebase.auth().signOut();
     this.setState(state => ({
       user: null
@@ -63,6 +83,7 @@ class App extends Component {
       // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
       if (user !== null) {
         this.setState({ user });
+
         //Se movio a Cloud functions
         /*   firebase
              .database()
@@ -100,29 +121,33 @@ class App extends Component {
   render() {
     return (
       <BrowserRouter>
-        <div>
-          <AppBar position="static">
+        <div >
+          <AppBar position="fixed"  >
             <Toolbar>
               <Typography variant="title" color="inherit" style={styles.flex}>
                 Grappther
               </Typography>
 
               <div>
-                <Link to="/perfil">
-                  <IconButton aria-haspopup="true" color="inherit">
-                    <Avatar
-                      src={this.state.user ? this.state.user.photoURL : ""}
-                    />
-                  </IconButton>
-                </Link>
-                <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
+                {this.state.user ? (
+                  <Link to="/perfil" style ={{flexGrow:1}}>
+                    <IconButton aria-haspopup="true" color="inherit">
+                      <Avatar
+                        src={this.state.user ? this.state.user.photoURL : ""}
+                      />
+                    </IconButton>
+                  </Link>
+                ) : (
+                  <div />
+                )}
+                <Link to="/" style={{ color: "#fff", textDecoration: "none", flexGrow:1 }}>
                   <Button aria-haspopup="true" color="inherit">
                     HOME
                   </Button>
                 </Link>
                 <Link
                   to="/crearTutoria"
-                  style={{ color: "#fff", textDecoration: "none" }}
+                  style={{ color: "#fff", textDecoration: "none"  , flexGrow:1}}
                 >
                   <Button aria-haspopup="true" color="inherit">
                     CREAR TUTORIA
@@ -145,14 +170,33 @@ class App extends Component {
                     LOGOUT
                   </Button>
                 ) : (
-                    <Button
-                      onClick={this.handleAuth}
-                      aria-haspopup="true"
-                      color="inherit"
+                  <span>
+                    <Link
+                      to="/login"
+                      style={{ color: "#fff", textDecoration: "none"  ,flexGrow:1}}
                     >
-                      LOGIN
-                  </Button>
-                  )}
+                      <Button
+                        onClick={this.handleAuth}
+                        aria-haspopup="true"
+                        color="inherit"
+                      >
+                        inicio de sesión
+                      </Button>
+                    </Link>
+                    <Link
+                      to="/register"
+                      style={{ color: "#fff", textDecoration: "none"  ,flexGrow:1}}
+                    >
+                      <Button
+                        //onClick={this.handleAuth}
+                        aria-haspopup="true"
+                        color="inherit"
+                      >
+                        Registrarse
+                      </Button>
+                    </Link>
+                  </span>
+                )}
               </div>
             </Toolbar>
           </AppBar>
@@ -167,8 +211,32 @@ class App extends Component {
             {//tira error
             }
             <Route path = "/enviarMensaje" component = {EnviarMensaje}/>
+            <Route path="/perfil">{<div>PERFIL</div>}</Route>
+            <Route
+              path="/login"
+              render={() =>
+                !this.state.signIn ? (
+                  <Redirect to="/inicioSesion" />
+                ) : (
+                  <Redirect to="/" />
+                )
+              }
+            />
+            <Route
+              path="/inicioSesion"
+              render={() => (
+                <div style={styles.button}>
+                </div>
+              )}
+            />
+            <Route
+              path="/register"
+              render={() => (
+                  <Register />
+              )}
+            />
           </Switch>
-        </div>
+        </div>  
       </BrowserRouter>
     );
   }
