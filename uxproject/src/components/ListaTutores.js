@@ -99,7 +99,7 @@ class ListaTutores extends Component {
         this.testEditClasses = this.testEditClasses.bind(this);
         this.editClasses = this.editClasses.bind(this);
         this.deleteClass = this.deleteClass.bind(this);
-       // this.handleClickOpen = this.handleClickOpen.bind(this);
+        this.handleClickOpen = this.handleClickOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.guardarCambios = this.guardarCambios.bind(this);
         this.openProfile = this.openProfile.bind(this);
@@ -128,9 +128,9 @@ class ListaTutores extends Component {
     }
 
 
-    /*handleClickOpen = () => {
+    handleClickOpen = () => {
         this.setState({ open: true });
-    };*/
+    };
 
     handleClose = () => {
         this.setState({ open: false });
