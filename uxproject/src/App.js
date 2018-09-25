@@ -13,6 +13,7 @@ import ListaTutores from "./components/ListaTutores";
 import Tutorial from "./components/Tutorial";
 import EnviarMensaje from "./components/EnviarMensaje";
 import Register from "./components/Register";
+import Home from "./components/Home";
 
 const styles = {
   root: {
@@ -136,7 +137,7 @@ class App extends Component {
                       </IconButton>
                     </Link>
                     <Link
-                      to="/"
+                      to="/home"
                       style={{
                         color: "#fff",
                         textDecoration: "none",
@@ -178,7 +179,7 @@ class App extends Component {
                 ) : (
                   <span>
                     <Link
-                      to="/"
+                      to="/home"
                       style={{
                         color: "#fff",
                         textDecoration: "none",
@@ -235,9 +236,7 @@ class App extends Component {
             </Toolbar>
           </AppBar>
           <Switch>
-            <Route exact path="/">
-              {<div>HOME</div>}
-            </Route>
+            <Route exact path="/home" component={Home} />
             <Route path="/tutorial" component={Tutorial} />
             <Route path="/perfil" component={ProfileTutor} />
             <Route path="/listaTutores" component={ListaTutores} />
