@@ -240,7 +240,7 @@ class ProfileTutor extends Component {
 
         ref.once("value").then(snapshot => {
             if (snapshot.child(userID).exists()) {
-                
+
                 console.log("existe usuario");
                 return true;
             } else {
@@ -277,16 +277,19 @@ class ProfileTutor extends Component {
 
     componentDidMount() {
         let currentComponent = this;
+/*
+        firebase.auth().onAuthStateChanged(user => {
 
+        });
 
-
+*/
 
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
                 //const name = auth.currentUser.displayName;
                 var userId = auth.currentUser.uid;
-                console.log("uid: " + userId);
+                //console.log("uid: " + userId);
                 console.log("idk");
 
                 const refUsuario = fire.database().ref().child("usuarios/tutores/" + userId);
@@ -303,6 +306,25 @@ class ProfileTutor extends Component {
                         emailStatic: email,
                         carreraStatic: carrera
                     })
+                });
+
+
+                var ref1 = firebase.database().ref().child('usuarios').child('tutores');
+
+                ref1.once("value").then(snapshot => {
+                    if (snapshot.child(userId).exists()) {
+                        console.log("uid: " + userId)
+
+                        console.log("cuenta de tutor");
+                        this.setState({
+                            tipoCuenta: "tutor"
+                        })
+                    } else {
+                        console.log("cuenta de alumno");
+                        this.setState({
+                            tipoCuenta: "alumno"
+                        })
+                    }
                 });
 
                 this.setState({
@@ -330,18 +352,24 @@ class ProfileTutor extends Component {
                 });
 
                 ref.on("value", function (snapshot) {
-                    let list = []
-                    snapshot.forEach(function (childSnapshot) {
-                        var key = childSnapshot.key;
-                        console.log(key);
-                        console.log(childSnapshot.val());
-                        list.push(key);
+                    if (snapshot.exists()) {
+                        let list = []
+                        snapshot.forEach(function (childSnapshot) {
+                            var key = childSnapshot.key;
+                            console.log(key);
+                            console.log(childSnapshot.val());
+                            list.push(key);
 
-                        currentComponent.setState({
-                            myClasses: list
+                            currentComponent.setState({
+                                myClasses: list
+                            })
                         })
-                    })
+                    }
+
                 });
+
+
+
 
             } else {
                 this.setState(
@@ -400,57 +428,58 @@ class ProfileTutor extends Component {
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Nombre</label>
-                        <input onChange={this.handleChange('nombreEdit')} className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre}/>
+                        <input onChange={this.handleChange('nombreEdit')} className="w-50 form-control" id="nombre" type="text" placeholder={this.state.nombre} />
                     </div>
 
                     <div className="col-xs-2">
                         <label htmlFor="ex1">Carrera</label>
-                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carreraStatic}/>
+                        <input onChange={this.handleChange('carrera')} className="w-50 form-control" id="carrera" type="text" placeholder={this.state.carreraStatic} />
                     </div>
 
                     <div className="">
                         <label htmlFor="ex1">Email</label>
-                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.emailStatic}/>
+                        <input onChange={this.handleChange('email')} className="w-50 form-control" id="email" type="text" placeholder={this.state.emailStatic} />
                     </div>
 
+                    {this.state.tipoCuenta === "tutor" ? (
+                        <Grid container spacing={16}>
+
+                            <Grid item xs={12} md={6}>
+                                <Typography style={{ flex: 1 }}>
+                                    Tutorías disponibles
+            <Button onClick={this.handleClickOpen} color="primary" aria-label="Add">
+                                        <AddIcon />
+                                    </Button>
+                                </Typography>
 
 
-                    <Grid container spacing={16}>
-
-                        <Grid item xs={12} md={6}>
-                            <Typography style={{ flex: 1 }}>
-                                Tutorías disponibles
-                                <Button onClick= {this.handleClickOpen} color="primary" aria-label="Add">
-                                    <AddIcon />
-                                </Button>
-                            </Typography>
+                                {//lista todas las clases que el usuario puede dar tutorias
+                                }
+                                <List>
 
 
-                            {//lista todas las clases que el usuario puede dar tutorias
-                            }
-                            <List>
-
-
-                                {this.state.myClasses.map((e) => {
-                                    return <ListItem primarytext={e} key={e}>
-                                        <ListItemText
-                                            primary={e}
-                                        />
-                                        <ListItemSecondaryAction onClick={() => this.deleteClass(e)} >
-                                            <IconButton aria-label="Delete">
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
-                                    </ListItem>;
-                                })}
+                                    {this.state.myClasses.map((e) => {
+                                        return <ListItem primarytext={e} key={e}>
+                                            <ListItemText
+                                                primary={e}
+                                            />
+                                            <ListItemSecondaryAction onClick={() => this.deleteClass(e)} >
+                                                <IconButton aria-label="Delete">
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
+                                        </ListItem>;
+                                    })}
 
 
 
-                            </List>
+                                </List>
 
-                        </Grid>
+                            </Grid>
 
-                    </Grid>
+                        </Grid>) : (<div></div>)}
+
+
 
 
 
@@ -472,7 +501,7 @@ class ProfileTutor extends Component {
                                 native
                                 value={this.state.select}
                                 onClick={this.handleChange('select')}
-                                onChange={ this.handleChange('select')}
+                                onChange={this.handleChange('select')}
                                 placeholder="asd"
                             >
 

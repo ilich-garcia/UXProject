@@ -15,6 +15,8 @@ import { Link } from "react-router-dom";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
+import TextField from '@material-ui/core/TextField';
+
 
 export default class ViewProfile extends Component {
     constructor(props) {
@@ -28,18 +30,24 @@ export default class ViewProfile extends Component {
             clases: [],
             user: null,
             open: false,
-            mensaje: "hello",
+            mensaje: "",
             tipoCuenta: ""
         }
         this.handleClickOpen = this.handleClickOpen.bind(this);
         this.nameMethod = this.nameMethod.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         //this.checkIfExists = this.checkIfExists.bind(this);
     }
 
     handleClickOpen = () => {
         this.setState({ open: true });
+    };
+
+    handleChange = name => event => {
+        this.setState({ [name]: event.target.value });
+        console.log(event.target.value);
     };
 
 
@@ -252,7 +260,7 @@ export default class ViewProfile extends Component {
 
                             </div>
                             <div>
-
+                                <TextField multiline placeholder = "mensaje" onChange={this.handleChange('mensaje')}></TextField>
                                 <Button onClick={() => this.sendMessage()} raised="true" type="button" className="btn btn-primary">Enviar</Button>
                             </div>
 
