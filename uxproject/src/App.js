@@ -14,6 +14,7 @@ import Tutorial from "./components/Tutorial";
 import EnviarMensaje from "./components/EnviarMensaje";
 import Register from "./components/Register";
 import Home from "./components/Home";
+import ListMessages from "./components/ListMessages";
 
 const styles = {
   root: {
@@ -241,7 +242,7 @@ class App extends Component {
             <Route path="/perfil" component={ProfileTutor} />
             <Route path="/listaTutores" component={ListaTutores} />
             <Route path="/enviarMensaje" component={EnviarMensaje} />
-            <Route
+            <Route path ="/myMessages" component = {ListMessages} />
               path="/login"
               render={() =>
                 !this.state.signIn ? (

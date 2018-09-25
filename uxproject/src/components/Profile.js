@@ -29,11 +29,13 @@ import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
+import Badge from '@material-ui/core/Badge';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { Link } from "react-router-dom";
 
 
 import { UserProfile } from "./UserProfile";
@@ -88,6 +90,7 @@ class ProfileTutor extends Component {
             clases: [],
             select: '',
             myClasses: [],
+            unreadMessages: ""
 
         };
         //this.addClasses = this.addClasses.bind(this);
@@ -277,12 +280,12 @@ class ProfileTutor extends Component {
 
     componentDidMount() {
         let currentComponent = this;
-/*
-        firebase.auth().onAuthStateChanged(user => {
-
-        });
-
-*/
+        /*
+                firebase.auth().onAuthStateChanged(user => {
+        
+                });
+        
+        */
 
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
@@ -336,6 +339,14 @@ class ProfileTutor extends Component {
 
                 var ref = fire.database().ref().child("usuarios/tutores/").child(userId).child("tutClases");
                 var refAllClasses = fire.database().ref().child("clases");
+                var refMessages = fire.database().ref().child("messages/" + userId);
+
+                refMessages.on("value", snapshot =>{
+                    const value = snapshot.val();
+                    this.setState({
+                        unreadMessages : value.notRead
+                    });
+                });
 
                 refAllClasses.on("value", function (snapshot) {
                     let list = []
@@ -422,6 +433,19 @@ class ProfileTutor extends Component {
                 <div className="jumbotron">
                     <h1>Hola {this.state.nombre}</h1>
                     <p>Aquí puedes editar tu perfil</p>
+                    <Link to = "/myMessages" style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        flexGrow: 1
+                    }}>
+
+                        <Button aria-haspopup="true" color="inherit">
+                            <Badge color="secondary" badgeContent={this.state.unreadMessages}>
+                                Mensajes
+                        </Badge>
+                        </Button>
+
+                    </Link>
                 </div>
 
                 <div className="container">

@@ -50,11 +50,15 @@ class ListMessages extends Component {
             email: "",
             clases: [],
             select: '',
+            sendToID: "",
+            sendToName: "",
+            mensaje: "",
+            tipoCuenta: "",
+            seenMessageID: "",
             mensajes: []
 
         };
-        //this.addClasses = this.addClasses.bind(this);
-        this.renderList = this.renderList.bind(this);
+
         this.handleChange = this.handleChange.bind(this);
         this.testMethod = this.testMethod.bind(this);
         this.testEditClasses = this.testEditClasses.bind(this);
@@ -89,7 +93,13 @@ class ListMessages extends Component {
     }
 
 
-    handleClickOpen = () => {
+    handleClickOpen(messageID, sentMessageID, nombre) {
+
+        this.setState({
+            seenMessageID: messageID,
+            sendToID: sentMessageID,
+            sendToName: nombre
+        });
         this.setState({ open: true });
     };
 
@@ -156,20 +166,20 @@ class ListMessages extends Component {
         firebase.auth().onAuthStateChanged(user => {
             if (user !== null) {
                 const ref = fire.database().ref().child("usuarios/tutores/").child(data.uid).child("tutClases");
-
-                ref.on("value", snapshot => {
-                    let list = []
-                    snapshot.forEach(childSnapshot => {
-                        var key = childSnapshot.key;
-                        console.log(key);
-                        console.log(childSnapshot.val());
-                        list.push(key);
-
-                        this.setState({
-                            selectedProfileClases: list
-                        })
-                    })
-                });
+                /*
+                                ref.on("value", snapshot => {
+                                    let list = []
+                                    snapshot.forEach(childSnapshot => {
+                                        var key = childSnapshot.key;
+                                        console.log(key);
+                                        console.log(childSnapshot.val());
+                                        list.push(key);
+                
+                                        this.setState({
+                                            selectedProfileClases: list
+                                        })
+                                    })
+                                });*/
 
                 this.setState({
                     selectedProfile: data
@@ -222,11 +232,30 @@ class ListMessages extends Component {
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
             if (user !== null) {
+                this.setState({
+                    user: user
+                });
 
-                //recorrer todos los usuarios y verificar si tipo cuenta === tutor
-                var refTutores1 = fire.database().ref().child("messages");
-                //o ya tener en la base de datos los tutores de esta forma
-                //var refTutores = fire.database().ref().child("usuarios/tutores");
+                var userID = firebase.auth().currentUser.uid;
+                var ref1 = firebase.database().ref().child('usuarios').child('tutores');
+
+                ref1.once("value").then(snapshot => {
+                    if (snapshot.child(userID).exists()) {
+                        console.log("uid: " + userID)
+
+                        console.log("cuenta de tutor");
+                        this.setState({
+                            tipoCuenta: "tutor"
+                        })
+                    } else {
+                        console.log("cuenta de alumno");
+                        this.setState({
+                            tipoCuenta: "alumno"
+                        })
+                    }
+                });
+
+                var refTutores1 = fire.database().ref().child("messages/" + user.uid);
 
                 refTutores1.on("value", snapshot => {
                     let list = [];
@@ -238,7 +267,7 @@ class ListMessages extends Component {
                         console.log(childSnapshot.val());
 
                         this.setState({
-                            messages: list
+                            mensajes: list
                         })
                     })
                 });
@@ -257,13 +286,52 @@ class ListMessages extends Component {
 
     }
 
+    getNombreUser() {
 
-
-    renderList() {
-        return this.state.clases.map(el => {
-            return <ListItem primarytext={el.nombre} key={el.idClase} />
-        })
     }
+
+    sendMessage() {
+        let currentComponent = this;
+        firebase.auth().onAuthStateChanged(user => {
+            if (user !== null) {
+                this.setState({ user: user });
+
+                const messagesRef = firebase.database().ref().child("messages").child(this.state.sendToID);
+
+                messagesRef.once("value").then(snapshot => {
+                    messagesRef.child('notRead').once('value', childSnapshot => {
+                        if (childSnapshot.exists()) {
+                            //alert('exists');
+                            let count = snapshot.val().notRead;
+                            count++;
+
+                            messagesRef.update({ notRead: count });
+                        } else {
+                            messagesRef.update({ notRead: 1 });
+                        }
+                    });
+
+                    var key = messagesRef.push().getKey();
+
+                    messagesRef.child(key).set({ notSeen: true, messageID: key, message: currentComponent.state.mensaje, sentBy: user.uid, type: this.state.tipoCuenta, nombre: user.displayName });
+
+                });
+
+                const mensajeLeidoRef = firebase.database().ref().child("messages").child(user.uid).child(this.state.seenMessageID);
+
+                mensajeLeidoRef.once("value").then(snapshot => {
+                    mensajeLeidoRef.child("notSeen").set(false);
+                });
+
+            }
+        });
+
+
+
+    }
+
+
+
 
 
 
@@ -273,23 +341,21 @@ class ListMessages extends Component {
         let data = this.state.mensajes.map((doc, i) => {
             return (
 
-                <div key={i}>
-                    <ListItem primarytext={doc.nombre} key={i}>
-                        <ListItemText
-                            primary={doc.nombre}
-                        />
-                        <ListItemText
-                            primary={doc.mensaje}
-                        />
-                        <ListItemSecondaryAction onClick={() => this.openProfile(doc)} >
-                            <Button aria-label="verPerfil">
-                                Ver Perfil <ProfileIcon />
-                            </Button>
-                        </ListItemSecondaryAction>
-                    </ListItem>
-                    
-                </div>
+                <div key={i} id={i} className="card">
+                    <div className="card-header">
+                        <div className="grid-i">
+                            <h4 style={{ textAlign: "left !important", fontSize: 1 + "rem" }} className="card-title">{doc.nombre}</h4>
+                        </div>
+                    </div>
+                    <div className="card-body">
+                        <p className="card-text">{doc.message}</p>
+                    </div>
+                    <div className="text-right" style={{ marginRight: 1 + "%", marginBottom: 1 + "%" }}>
+                        <button id={doc.sentBy} type="button" className="btn btn-outline-secondary  buttonPost" onClick={() => this.handleClickOpen(doc.messageID, doc.sentBy, doc.nombre)}> Responder </button>
 
+                    </div>
+
+                </div>
 
 
 
@@ -297,22 +363,16 @@ class ListMessages extends Component {
         });
 
         return (
-            <div>
-                <Grid container spacing={16}>
 
-                    <Grid item xs={12} md={6}>
-                        <Typography style={{ flex: 1 }}>
-                            Tutores
-                        </Typography>
+            <div id="Messages" className="Home">
+                <div id="Desk">
+                    <div id="board" className="card">
+                        {data}
+                    </div>
+                    {/*this.renderLogginButton()*/}
+                </div>
 
 
-                        <List>
-                            {data}
-                        </List>
-
-                    </Grid>
-
-                </Grid>
 
                 <Dialog open={this.state.open}
                     onClose={this.handleClose}
@@ -321,8 +381,8 @@ class ListMessages extends Component {
 
                     <div>
                         <div className="jumbotron">
-                            <h1>Enviar mensaje</h1>
-                            <p>Tutor: {this.props.objectUser.nombre}</p>
+                            <h1>Send message</h1>
+                            <p>to: {this.state.sendTo}</p>
 
                             {/*<Link
                         to="/enviarMensaje"
@@ -334,16 +394,17 @@ class ListMessages extends Component {
 
                         </div>
                         <div>
-
+                            <TextField multiline placeholder="mensaje" onChange={this.handleChange('mensaje')}></TextField>
                             <Button onClick={() => this.sendMessage()} raised="true" type="button" className="btn btn-primary">Enviar</Button>
                         </div>
 
                     </div>
                 </Dialog>
-
-
-
             </div>
+
+
+
+
         );
     }
 

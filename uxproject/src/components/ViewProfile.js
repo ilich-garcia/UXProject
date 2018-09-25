@@ -161,7 +161,7 @@ export default class ViewProfile extends Component {
 
                     var key = messagesRef.push().getKey();
 
-                    messagesRef.child(key).set({ notSeen: true, message: currentComponent.state.mensaje, sentBy: user.uid, type: this.state.tipoCuenta, nombre: user.displayName });
+                    messagesRef.child(key).set({ notSeen: true, messageID: key, message: currentComponent.state.mensaje, sentBy: user.uid, type: this.state.tipoCuenta, nombre: user.displayName });
 
                 });
 
