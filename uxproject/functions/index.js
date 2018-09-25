@@ -26,6 +26,38 @@ exports.createUserAccount = functions.auth.user().onCreate(event =>{
     })
 })
 
+exports.seenMessages = functions.database.ref("messages/{pushId}/{sentByID}").onUpdate(
+  (change) => {
+   // const boolNotSeen = change.after.ref.parent.child("notSeen");
+  //const contNotRead = change.after.ref.child("notRead");
+
+  const original = change.before.val();
+  const updated = change.after.val();
+
+  const messageIDRef = change.after.ref.parent;
+  const countRef = messageIDRef.child('notRead');
+  //console.log("contador value: " + countRef.val());
+
+  console.log("notRead original value: " + original.notSeen);
+  console.log("notRead updated value: " + updated.notSeen);
+
+
+  let add = 0;
+  if(original.notSeen === true && updated.notSeen === false ){
+    add--;
+  }else if(original.notSeen === false && updated.notSeen === true){
+    add++;
+  }else{
+    return null;
+  }
+
+  return countRef.transaction((current) => {
+    return (current || 0) + add;
+  })
+
+
+});
+
 /*
 exports.updateAccount = functions.auth.user().onCreate(event => {
     const user = event.data; // The firebase user

@@ -240,9 +240,12 @@ class ProfileTutor extends Component {
 
         ref.once("value").then(snapshot => {
             if (snapshot.child(userID).exists()) {
+                
                 console.log("existe usuario");
+                return true;
             } else {
                 console.log("not exists");
+                return false;
             }
         });
     }

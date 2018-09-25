@@ -28,25 +28,64 @@ export default class ViewProfile extends Component {
             clases: [],
             user: null,
             open: false,
-            mensaje: "hello"
+            mensaje: "hello",
+            tipoCuenta: ""
         }
         this.handleClickOpen = this.handleClickOpen.bind(this);
         this.nameMethod = this.nameMethod.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        //this.checkIfExists = this.checkIfExists.bind(this);
     }
 
     handleClickOpen = () => {
         this.setState({ open: true });
     };
 
+
+
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
             // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
-            if (user !== null) {
-                this.setState({ user });
 
-                const ref = firebase.database().ref().child("users").child(this.props.objectUser.uid).child("tutClases");
+
+            if (user !== null) {
+                this.setState({ user: user });
+
+                var userID = firebase.auth().currentUser.uid;
+                var ref1 = firebase.database().ref().child('usuarios').child('tutores');
+   
+                ref1.once("value").then(snapshot => {
+                    if (snapshot.child(userID).exists()) {
+                        console.log("uid: " + userID)
+
+                        console.log("cuenta de tutor");
+                        this.setState({
+                            tipoCuenta : "tutor"
+                        })
+                    } else {
+                        console.log("cuenta de alumno");
+                        this.setState({
+                            tipoCuenta : "alumno"
+                        })
+                    }
+                });
+
+/*
+                if (checkIfExists()) {
+
+                    this.setState({
+                        tipoCuenta: "tutor"
+                    })
+                } else {
+                    this.setState({
+                        tipoCuenta: "alumno"
+                    })
+
+                }*/
+
+
+                const ref = firebase.database().ref().child("usuarios").child("tutores").child(this.props.objectUser.uid).child("tutClases");
 
                 ref.on("value", snapshot => {
                     let list = []
@@ -87,37 +126,6 @@ export default class ViewProfile extends Component {
         this.setState({ open: false });
     };
 
-    componentDidMount() {
-        firebase.auth().onAuthStateChanged(user => {
-            // Cada vez que nos loggeemos o nos salgamos, el user tendrá información.
-            if (user !== null) {
-                this.setState({ user: user });
-
-                const ref = firebase.database().ref().child("users").child(this.props.objectUser.uid).child("tutClases");
-
-                ref.on("value", snapshot => {
-                    let list = []
-                    snapshot.forEach(childSnapshot => {
-                        var key = childSnapshot.key;
-                        console.log(key);
-                        console.log(childSnapshot.val());
-                        list.push(key);
-
-                        this.setState({
-                            clases: list
-                        })
-                    })
-                }).bind(this);
-
-            } else {
-                this.setState(
-                    { user: null }
-                )
-                console.log("not authed");
-            }
-        });
-    }
-
     nameMethod() {
 
     }
@@ -128,27 +136,26 @@ export default class ViewProfile extends Component {
             if (user !== null) {
                 this.setState({ user: user });
 
-                const userID = this.props.objectUser.uid;
-
                 const messagesRef = firebase.database().ref().child("messages").child(this.props.objectUser.uid);
 
                 messagesRef.once("value").then(snapshot => {
+                    messagesRef.child('notRead').once('value', childSnapshot => {
+                        if (childSnapshot.exists()) {
+                            //alert('exists');
+                            let count = snapshot.val().notRead;
+                            count++;
+
+                            messagesRef.update({ notRead: count });
+                        } else {
+                            messagesRef.update({ notRead: 1 });
+                        }
+                    });
+
                     var key = messagesRef.push().getKey();
-                    //console.log("key: " + key);
-                    let contMensajes = 0;
-                    if (!snapshot.child("notRead").exists()) {
-                        contMensajes++;
-                    } else {
-                        contMensajes = snapshot.val().notRead + 1;
-                    }
 
-                    //console.log("message = " + this.state.message);
+                    messagesRef.child(key).set({ notSeen: true, message: currentComponent.state.mensaje, sentBy: user.uid, type: this.state.tipoCuenta, nombre: user.displayName });
 
-                    messagesRef.update({ notRead: contMensajes });
-                    messagesRef.child(key).set({ message: currentComponent.state.mensaje, sentBy : user.uid });
-                    //ref.child("tutClases").child(newClass).set(true);
                 });
-
 
             }
         });
@@ -261,3 +268,30 @@ export default class ViewProfile extends Component {
 
 }
 
+function checkIfExists() {//se puede utilizar para saber si el usuario es tutor o alumno
+    var userID = firebase.auth().currentUser.uid;
+    var ref = firebase.database().ref().child('usuarios').child('tutores');
+    //var refTeachers = fire.database().ref().child("users/teachers");
+
+    /*
+    refTeachers.once("value").then(snapshot => {
+        if(snapshot.child(userID).exists()){
+            //es tutor
+            //this.setState({tipoCuenta : 'tutor'});
+        }else{
+            //es alumno
+        }
+    });*/
+
+    ref.once("value").then(snapshot => {
+        if (snapshot.child(userID).exists()) {
+            console.log("uid: " + userID)
+
+            console.log("cuenta de tutor");
+            return true;
+        } else {
+            console.log("cuenta de alumno");
+            return false;
+        }
+    });
+}
